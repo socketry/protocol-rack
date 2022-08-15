@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-# Copyright, 2017, by Samuel G. D. Williams. <http://www.codeotaku.com>
+# Copyright, 2018, by Samuel G. D. Williams. <http://www.codeotaku.com>
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -20,37 +20,19 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-require 'rack'
+require 'protocol/rack/body/streaming'
 
-require_relative 'input'
-require_relative 'response'
-
-require 'console'
-
-module Protocol
-	module Rack
-		# CGI keys <https://tools.ietf.org/html/rfc3875#section-4.1>:
-		module CGI
-			HTTP_HOST = 'HTTP_HOST'
-			PATH_INFO = 'PATH_INFO'
-			REQUEST_METHOD = 'REQUEST_METHOD'
-			REQUEST_PATH = 'REQUEST_PATH'
-			REQUEST_URI = 'REQUEST_URI'
-			SCRIPT_NAME = 'SCRIPT_NAME'
-			QUERY_STRING = 'QUERY_STRING'
-			SERVER_PROTOCOL = 'SERVER_PROTOCOL'
-			SERVER_NAME = 'SERVER_NAME'
-			SERVER_PORT = 'SERVER_PORT'
-			REMOTE_ADDR = 'REMOTE_ADDR'
-			CONTENT_TYPE = 'CONTENT_TYPE'
-			CONTENT_LENGTH = 'CONTENT_LENGTH'
+describe Protocol::Rack::Body::Streaming do
+	with 'block' do
+		let(:block) {proc{|stream| stream.write("Hello World")}}
+		let(:body) {subject.new(block)}
+		
+		it "should be empty?" do
+			expect(body.block).to be == block
 		end
 		
-		# Rack environment variables:
-		RACK_ERRORS = 'rack.errors'
-		RACK_LOGGER = 'rack.logger'
-		RACK_INPUT = 'rack.input'
-		RACK_URL_SCHEME = 'rack.url_scheme'
-		RACK_PROTOCOL = 'rack.protocol'
+		it "can't call each" do
+			expect{body.each{}}.to raise_exception(NotImplementedError)
+		end
 	end
 end

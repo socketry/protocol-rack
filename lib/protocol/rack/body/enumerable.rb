@@ -28,39 +28,13 @@ module Protocol
 		module Body
 			# Wraps the rack response body.
 			#
-			# The `rack` body must respond to `each` and must only yield `String` values. If the body responds to `close`, it will be called after iteration. If the body is replaced by a middleware after action, the original body must be closed first, if it responds to `close`. If the body responds to `to_path`, it must return a String identifying the location of a file whose contents are identical to that produced by calling `each`; this may be used by the server as an alternative, possibly more efficient way to transport the response. The body commonly is an `Array` of strings, the application instance itself, or a `File`-like object.
+			# The `rack` body must respond to `each` and must only yield `String` values. If the body responds to `close`, it will be called after iteration.
 			class Enumerable < ::Protocol::HTTP::Body::Readable
 				CONTENT_LENGTH = 'content-length'.freeze
 				
 				# Wraps an array into a buffered body.
-				# @parameter status [Integer] The response status.
-				# @parameter headers [Protocol::HTTP::Headers] The response headers.
 				# @parameter body [Object] The `rack` response body.
-				def self.wrap(status, headers, body, request = nil)
-					# In no circumstance do we want this header propagating out:
-					if length = headers.delete(CONTENT_LENGTH)
-						# We don't really trust the user to provide the right length to the transport.
-						length = Integer(length)
-					end
-										
-					# Otherwise, we have a more typical response body:
-					if status == 200 and body.respond_to?(:to_path)
-						begin
-							# Don't mangle partial responses (206)
-							return ::Protocol::HTTP::Body::File.open(body.to_path).tap do
-								body.close if body.respond_to?(:close) # Close the original body.
-							end
-						rescue Errno::ENOENT
-							# If the file is not available, ignore.
-						end
-					end
-					
-					# If we have a streaming body, we hijack the connection:
-					unless body.respond_to?(:each)
-						Console.logger.info(self, "Hijacking response because it doesn't respond to #each!")
-						return Async::HTTP::Body::Hijack.new(body, request&.body)
-					end
-					
+				def self.wrap(body, length = nil)
 					if body.is_a?(Array)
 						length ||= body.sum(&:bytesize)
 						return self.new(body, length)

@@ -116,35 +116,35 @@ module Protocol
 					RACK_PROTOCOL => request.protocol,
 					
 					# The HTTP request method, such as “GET” or “POST”. This cannot ever be an empty string, and so is always required.
-					REQUEST_METHOD => request.method,
+					CGI::REQUEST_METHOD => request.method,
 					
 					# The initial portion of the request URL's “path” that corresponds to the application object, so that the application knows its virtual “location”. This may be an empty string, if the application corresponds to the “root” of the server.
-					SCRIPT_NAME => '',
+					CGI::SCRIPT_NAME => '',
 					
 					# The remainder of the request URL's “path”, designating the virtual “location” of the request's target within the application. This may be an empty string, if the request URL targets the application root and does not have a trailing slash. This value may be percent-encoded when originating from a URL.
-					PATH_INFO => request_path,
-					REQUEST_PATH => request_path,
-					REQUEST_URI => request.path,
+					CGI::PATH_INFO => request_path,
+					CGI::REQUEST_PATH => request_path,
+					CGI::REQUEST_URI => request.path,
 
 					# The portion of the request URL that follows the ?, if any. May be empty, but is always required!
-					QUERY_STRING => query_string || '',
+					CGI::QUERY_STRING => query_string || '',
 					
 					# The server protocol (e.g. HTTP/1.1):
-					SERVER_PROTOCOL => request.version,
+					CGI::SERVER_PROTOCOL => request.version,
 					
 					# The request scheme:
 					RACK_URL_SCHEME => request.scheme,
 					
 					# I'm not sure what sane defaults should be here:
-					SERVER_NAME => server_name,
-					SERVER_PORT => server_port,
+					CGI::SERVER_NAME => server_name,
+					CGI::SERVER_PORT => server_port,
 				}
 				
 				self.unwrap_request(request, env)
 				
 				status, headers, body = @app.call(env)
 				
-				return Response.wrap(status, headers, body, request)
+				return Response.wrap(request, status, headers, body)
 			rescue => exception
 				Console.logger.error(self) {exception}
 				
@@ -153,6 +153,8 @@ module Protocol
 				return failure_response(exception)
 			end
 			
+			private
+
 			# Generate a suitable response for the given exception.
 			# @parameter exception [Exception]
 			# @returns [Protocol::HTTP::Response]

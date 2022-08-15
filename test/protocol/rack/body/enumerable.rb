@@ -24,18 +24,18 @@ require 'protocol/rack/body/enumerable'
 
 describe Protocol::Rack::Body::Enumerable do
 	with 'empty body' do
-		let(:enumerable) {subject.new([], nil)}
+		let(:body) {subject.new([], nil)}
 		
 		it "should be empty?" do
-			expect(enumerable).to be(:empty?)
+			expect(body).to be(:empty?)
 		end
 	end
 	
 	with 'single string body' do
-		let(:enumerable) {subject.new(["Hello World"], nil)}
+		let(:body) {subject.new(["Hello World"], nil)}
 		
 		it "should not be empty?" do
-			expect(enumerable).not.to be(:empty?)
+			expect(body).not.to be(:empty?)
 		end
 	end
 end

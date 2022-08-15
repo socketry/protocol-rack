@@ -20,16 +20,14 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
+require 'protocol/http/body/readable'
+
 module Protocol
 	module Rack
 		module Body
-			# Wraps a streaming input body into the interface required by `rack.input`.
-			#
-			# The input stream is an `IO`-like object which contains the raw HTTP POST data. When applicable, its external encoding must be `ASCII-8BIT` and it must be opened in binary mode, for Ruby 1.9 compatibility. The input stream must respond to `gets`, `each`, `read` and `rewind`.
-			#
-			# This implementation is not always rewindable, to avoid buffering the input when handling large uploads. See {Rewindable} for more details.
+			# Wraps a streaming response body into a compatible Protocol::HTTP body.
 			class Streaming < ::Protocol::HTTP::Body::Readable
-				def initialize(&block)
+				def initialize(block)
 					@block = block
 				end
 				

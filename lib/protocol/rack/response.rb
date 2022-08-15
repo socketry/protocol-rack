@@ -20,11 +20,12 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-require_relative 'output'
-require_relative '../middleware/proxy'
+require_relative 'body'
+require_relative 'constants'
+# require 'time'
 
-require 'async/http/body/hijack'
-require 'time'
+require 'protocol/http/response'
+require 'protocol/http/headers'
 
 module Protocol
 	module Rack
@@ -61,10 +62,12 @@ module Protocol
 					
 					if key.start_with?('rack.')
 						meta[key] = value
-					else
-						value.to_s.split("\n").each do |part|
-							headers.add(key, part)
+					elsif value.is_a?(Array)
+						value.each do |value|
+							headers[key] = value
 						end
+					else
+						headers[key] = value
 					end
 				end
 				
@@ -84,15 +87,7 @@ module Protocol
 					Console.logger.warn("Ignoring protocol-level headers: #{ignored.inspect}")
 				end
 
-				# If we have an Async::HTTP body, we return it directly:
-				if body.is_a?(::Protocol::HTTP::Body::Readable)
-					Console.logger.warn(self, "Returning #{body.class} as body is falcon-specific and may be removed in the future!")
-					return body
-				elsif body.respond_to?(:each)
-					body = Body::Enumerable.wrap(status, headers, body)
-				else
-					body = Body::Streaming.new(body)
-				end
+				body = Body.wrap(status, headers, body)
 
 				if request&.head?
 					# I thought about doing this in Output.wrap, but decided the semantics are too tricky. Specifically, the various ways a rack response body can be wrapped, and the need to invoke #close at the right point.

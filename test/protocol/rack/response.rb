@@ -20,71 +20,42 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-require_relative '../server_context'
+require 'protocol/rack/response'
 
-require 'falcon/server'
-require 'async/websocket/server'
-require 'async/websocket/client'
-
-RSpec.describe Falcon::Adapters::Response do
-	context 'with multiple set-cookie headers' do
-		subject {described_class.wrap(200, {'Set-Cookie' => "a\nb"}, [])}
-		
-		let(:fields) {subject.headers.fields}
+describe Protocol::Rack::Response do
+	with 'multiple set-cookie headers' do
+		let(:response) {subject.wrap(200, {'set-cookie' => ["a", "b"]}, [])}
+		let(:fields) {response.headers.fields}
 		
 		it "should generate multiple headers" do
-			expect(fields).to include(['set-cookie', 'a'])
-			expect(fields).to include(['set-cookie', 'b'])
+			expect(fields).to be(:include?, ['set-cookie', 'a'])
+			expect(fields).to be(:include?, ['set-cookie', 'b'])
 		end
 	end
 	
-	context 'with #to_path' do
+	with '#to_path' do
 		let(:body) {Array.new}
 		
 		it "should generate file body" do
 			expect(body).to receive(:to_path).and_return("/dev/null")
 			
-			response = described_class.wrap(200, {}, body)
+			response = subject.wrap(200, {}, body)
 			
-			expect(response.body).to be_kind_of Async::HTTP::Body::File
+			expect(response.body).to be(:kind_of?, Protocol::HTTP::Body::File)
 		end
 		
 		it "should not modify partial responses" do
-			response = described_class.wrap(206, {}, body)
+			response = subject.wrap(206, {}, body)
 			
-			expect(response.body).to be_kind_of Falcon::Adapters::Output
+			expect(response.body).to be(:kind_of?, Protocol::Rack::Body::Enumerable)
 		end
 	end
 	
-	context 'with content-length' do
+	with 'with content-length' do
 		it "should remove header" do
-			response = described_class.wrap(200, {'Content-Length' => '4'}, ["1234"])
+			response = subject.wrap(200, {'content-length' => '4'}, ["1234"])
 			
-			expect(response.headers).to_not include('content-length')
-		end
-	end
-	
-	context 'with rack.hijack' do
-		include_context Falcon::Server
-		
-		let(:text) {"Hello World!"}
-		
-		let(:app) do
-			lambda do |env|
-				response = lambda do |stream|
-					stream.write(text)
-					stream.close
-				end
-				
-				[200, {'rack.hijack' => response}, nil]
-			end
-		end
-		
-		let(:response) {client.get("/")}
-		
-		it "generates successful response and promise" do
-			expect(response).to be_success
-			expect(response.read).to be == text
+			expect(response.headers).not.to be(:include?, 'content-length')
 		end
 	end
 end

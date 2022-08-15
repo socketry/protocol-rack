@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-# Copyright, 2017, by Samuel G. D. Williams. <http://www.codeotaku.com>
+# Copyright, 2018, by Samuel G. D. Williams. <http://www.codeotaku.com>
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -20,37 +20,36 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-require 'rack'
-
-require_relative 'input'
-require_relative 'response'
-
-require 'console'
-
 module Protocol
 	module Rack
-		# CGI keys <https://tools.ietf.org/html/rfc3875#section-4.1>:
-		module CGI
-			HTTP_HOST = 'HTTP_HOST'
-			PATH_INFO = 'PATH_INFO'
-			REQUEST_METHOD = 'REQUEST_METHOD'
-			REQUEST_PATH = 'REQUEST_PATH'
-			REQUEST_URI = 'REQUEST_URI'
-			SCRIPT_NAME = 'SCRIPT_NAME'
-			QUERY_STRING = 'QUERY_STRING'
-			SERVER_PROTOCOL = 'SERVER_PROTOCOL'
-			SERVER_NAME = 'SERVER_NAME'
-			SERVER_PORT = 'SERVER_PORT'
-			REMOTE_ADDR = 'REMOTE_ADDR'
-			CONTENT_TYPE = 'CONTENT_TYPE'
-			CONTENT_LENGTH = 'CONTENT_LENGTH'
+		module Body
+			CONTENT_LENGTH = 'content-length'
+			
+			def self.wrap(status, headers, body)
+				# In no circumstance do we want this header propagating out:
+				if length = headers.delete(CONTENT_LENGTH)
+					# We don't really trust the user to provide the right length to the transport.
+					length = Integer(length)
+				end
+
+				# If we have an Async::HTTP body, we return it directly:
+				if body.is_a?(::Protocol::HTTP::Body::Readable)
+					return body
+				elsif status == 200 and body.respond_to?(:to_path)
+					begin
+						# Don't mangle partial responses (206)
+						return ::Protocol::HTTP::Body::File.open(body.to_path).tap do
+							body.close if body.respond_to?(:close) # Close the original body.
+						end
+					rescue Errno::ENOENT
+						# If the file is not available, ignore.
+					end
+				elsif body.respond_to?(:each)
+					body = Body::Enumerable.wrap(body, length)
+				else
+					body = Body::Streaming.new(body)
+				end
+			end
 		end
-		
-		# Rack environment variables:
-		RACK_ERRORS = 'rack.errors'
-		RACK_LOGGER = 'rack.logger'
-		RACK_INPUT = 'rack.input'
-		RACK_URL_SCHEME = 'rack.url_scheme'
-		RACK_PROTOCOL = 'rack.protocol'
 	end
 end
