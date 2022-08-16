@@ -31,9 +31,6 @@ module Protocol
 		class Adapter
 			PROTOCOL_HTTP_REQUEST = "protocol.http.request"
 		
-			# Header constants:
-			HTTP_X_FORWARDED_PROTO = 'HTTP_X_FORWARDED_PROTO'
-		
 			# Initialize the rack adaptor middleware.
 			# @parameter app [Object] The rack middleware.
 			def initialize(app)
@@ -75,26 +72,26 @@ module Protocol
 			# @parameter env [Hash] The rack `env`.
 			def unwrap_request(request, env)
 				if content_type = request.headers.delete('content-type')
-					env[CONTENT_TYPE] = content_type
+					env[CGI::CONTENT_TYPE] = content_type
 				end
 				
 				# In some situations we don't know the content length, e.g. when using chunked encoding, or when decompressing the body.
 				if body = request.body and length = body.length
-					env[CONTENT_LENGTH] = length.to_s
+					env[CGI::ONTENT_LENGTH] = length.to_s
 				end
 				
 				self.unwrap_headers(request.headers, env)
 				
 				# HTTP/2 prefers `:authority` over `host`, so we do this for backwards compatibility.
-				env[HTTP_HOST] ||= request.authority
+				env[CGI::HTTP_HOST] ||= request.authority
 				
 				# This is the HTTP/1 header for the scheme of the request and is used by Rack. Technically it should use the Forwarded header but this is not common yet.
 				# https://tools.ietf.org/html/rfc7239#section-5.4
 				# https://github.com/rack/rack/issues/1310
-				env[HTTP_X_FORWARDED_PROTO] ||= request.scheme
+				env[CGI::HTTP_X_FORWARDED_PROTO] ||= request.scheme
 				
 				if remote_address = request.remote_address
-					env[REMOTE_ADDR] = remote_address.ip_address if remote_address.ip?
+					env[CGI::REMOTE_ADDR] = remote_address.ip_address if remote_address.ip?
 				end
 			end
 			
@@ -144,7 +141,7 @@ module Protocol
 				
 				status, headers, body = @app.call(env)
 				
-				return Response.wrap(request, status, headers, body)
+				return Response.wrap(status, headers, body, request)
 			rescue => exception
 				Console.logger.error(self) {exception}
 				

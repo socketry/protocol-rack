@@ -21,6 +21,7 @@
 # THE SOFTWARE.
 
 require 'protocol/rack/adapter'
+require 'server_context'
 
 describe Protocol::Rack::Adapter do
 	let(:adapter) {subject.new(lambda{})}
@@ -35,26 +36,43 @@ describe Protocol::Rack::Adapter do
 			expect(env).to be == {'HTTP_COOKIE' => "a=b;x=y"}
 		end
 	end
+
+	with 'successful response'do
+		include ServerContext
+		let(:protocol) {Async::HTTP::Protocol::HTTP1}
+		
+		let(:app) do
+			lambda do |env|
+				[200, {}, ["Hello World!"]]
+			end
+		end
+		
+		let(:response) {client.get("/")}
+		
+		it "get valid HTTP_HOST" do
+			expect(response.read).to be == "Hello World!"
+		end
+	end
 	
-	# context 'HTTP_HOST', timeout: 1 do
-	# 	include_context Falcon::Server
-	# 	let(:protocol) {Async::HTTP::Protocol::HTTP2}
+	with 'HTTP_HOST' do
+		include ServerContext
+		let(:protocol) {Async::HTTP::Protocol::HTTP2}
 		
-	# 	let(:app) do
-	# 		lambda do |env|
-	# 			[200, {}, ["HTTP_HOST: #{env['HTTP_HOST']}"]]
-	# 		end
-	# 	end
+		let(:app) do
+			lambda do |env|
+				[200, {}, ["HTTP_HOST: #{env['HTTP_HOST']}"]]
+			end
+		end
 		
-	# 	let(:response) {client.get("/")}
+		let(:response) {client.get("/")}
 		
-	# 	it "get valid HTTP_HOST" do
-	# 		expect(response.read).to be == "HTTP_HOST: 127.0.0.1:9294"
-	# 	end
-	# end
+		it "get valid HTTP_HOST" do
+			expect(response.read).to be == "HTTP_HOST: 127.0.0.1:9294"
+		end
+	end
 	
-	# context 'Connection: close', timeout: 1 do
-	# 	include_context Falcon::Server
+	# with 'connection: close', timeout: 1 do
+	# 	include ServerContext
 	# 	let(:protocol) {Async::HTTP::Protocol::HTTP1}
 		
 	# 	let(:app) do

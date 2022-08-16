@@ -44,6 +44,9 @@ module Protocol
 			REMOTE_ADDR = 'REMOTE_ADDR'
 			CONTENT_TYPE = 'CONTENT_TYPE'
 			CONTENT_LENGTH = 'CONTENT_LENGTH'
+			
+			# Header constants:
+			HTTP_X_FORWARDED_PROTO = 'HTTP_X_FORWARDED_PROTO'
 		end
 		
 		# Rack environment variables:

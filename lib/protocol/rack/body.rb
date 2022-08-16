@@ -20,6 +20,9 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
+require_relative 'body/streaming'
+require_relative 'body/enumerable'
+
 module Protocol
 	module Rack
 		module Body
