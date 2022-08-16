@@ -27,12 +27,8 @@ describe Protocol::Rack::Body::Streaming do
 		let(:block) {proc{|stream| stream.write("Hello World")}}
 		let(:body) {subject.new(block)}
 		
-		it "should be empty?" do
+		it "should wrap block" do
 			expect(body.block).to be == block
-		end
-		
-		it "can't call each" do
-			expect{body.each{}}.to raise_exception(NotImplementedError)
 		end
 	end
 end

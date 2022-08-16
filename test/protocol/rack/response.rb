@@ -21,8 +21,18 @@
 # THE SOFTWARE.
 
 require 'protocol/rack/response'
+require 'disable_console_context'
 
 describe Protocol::Rack::Response do
+	with 'connection: close header' do
+		include DisableConsoleContext
+		let(:response) {subject.new(200, {'connnection' => 'close'}, [])}
+		
+		it "should have connection: close header" do
+			expect(response.headers).not.to be(:include?, 'connection')
+		end
+	end
+	
 	with 'multiple set-cookie headers' do
 		let(:response) {subject.wrap(200, {'set-cookie' => ["a", "b"]}, [])}
 		let(:fields) {response.headers.fields}

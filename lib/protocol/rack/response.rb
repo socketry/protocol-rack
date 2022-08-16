@@ -84,10 +84,10 @@ module Protocol
 
 				ignored = headers.extract(HOP_HEADERS)
 				unless ignored.empty?
-					Console.logger.warn("Ignoring protocol-level headers: #{ignored.inspect}")
+					Console.logger.warn(self, "Ignoring protocol-level headers: #{ignored.inspect}")
 				end
 
-				body = Body.wrap(status, headers, body)
+				body = Body.wrap(status, headers, body, request&.body)
 
 				if request&.head?
 					# I thought about doing this in Output.wrap, but decided the semantics are too tricky. Specifically, the various ways a rack response body can be wrapped, and the need to invoke #close at the right point.

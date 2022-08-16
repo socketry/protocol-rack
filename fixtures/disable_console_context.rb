@@ -1,6 +1,4 @@
-# frozen_string_literal: true
-
-# Copyright, 2018, by Samuel G. D. Williams. <http://www.codeotaku.com>
+# Copyright, 2019, by Samuel G. D. Williams. <http://www.codeotaku.com>
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -20,53 +18,15 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-require 'protocol/http/body/readable'
-require 'protocol/http/body/stream'
-
-module Protocol
-	module Rack
-		module Body
-			# Wraps a streaming response body into a compatible Protocol::HTTP body.
-			class Streaming < ::Protocol::HTTP::Body::Readable
-				def initialize(block, input = nil)
-					@block = block
-					@input = input
-				end
-				
-				attr :block
-
-				def each(&block)
-					stream = ::Protocol::HTTP::Body::Stream.new(@input, Output.new(block))
-					
-					@block.call(stream)
-				end
-
-				def stream?
-					true
-				end
-
-				def call(stream)
-					@block.call(stream)
-				end
-				
-				class Output
-					def initialize(block)
-						@block = block
-					end
-					
-					def write(chunk)
-						@block.call(chunk)
-					end
-					
-					def close
-						@block = nil
-					end
-					
-					def empty?
-						true
-					end
-				end
-			end
+module DisableConsoleContext
+	def around
+		level = Console.logger.level
+		Console.logger.off!
+		
+		begin
+			super
+		ensure
+			Console.logger.level = level
 		end
 	end
 end

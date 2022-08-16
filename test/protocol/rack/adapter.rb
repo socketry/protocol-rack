@@ -22,6 +22,7 @@
 
 require 'protocol/rack/adapter'
 require 'server_context'
+require 'disable_console_context'
 
 describe Protocol::Rack::Adapter do
 	let(:adapter) {subject.new(lambda{})}
@@ -36,11 +37,14 @@ describe Protocol::Rack::Adapter do
 			expect(env).to be == {'HTTP_COOKIE' => "a=b;x=y"}
 		end
 	end
+end
 
-	with 'successful response'do
-		include ServerContext
-		let(:protocol) {Async::HTTP::Protocol::HTTP1}
-		
+Adapter = Sus::Shared('an adapter') do
+	include ServerContext
+	
+	let(:protocol) {subject}
+	
+	with 'successful response' do
 		let(:app) do
 			lambda do |env|
 				[200, {}, ["Hello World!"]]
@@ -53,11 +57,8 @@ describe Protocol::Rack::Adapter do
 			expect(response.read).to be == "Hello World!"
 		end
 	end
-	
+
 	with 'HTTP_HOST' do
-		include ServerContext
-		let(:protocol) {Async::HTTP::Protocol::HTTP2}
-		
 		let(:app) do
 			lambda do |env|
 				[200, {}, ["HTTP_HOST: #{env['HTTP_HOST']}"]]
@@ -71,93 +72,62 @@ describe Protocol::Rack::Adapter do
 		end
 	end
 	
-	# with 'connection: close', timeout: 1 do
-	# 	include ServerContext
-	# 	let(:protocol) {Async::HTTP::Protocol::HTTP1}
+	with 'connection: close', timeout: 1 do
+		include DisableConsoleContext
 		
-	# 	let(:app) do
-	# 		lambda do |env|
-	# 			[200, {'Connection' => 'close'}, ["Hello World!"]]
-	# 		end
-	# 	end
+		let(:app) do
+			lambda do |env|
+				[200, {'connection' => 'close'}, ["Hello World!"]]
+			end
+		end
 		
-	# 	let(:response) {client.get("/")}
+		let(:response) {client.get("/")}
 		
-	# 	it "get valid response" do
-	# 		expect(response.headers).to_not include('connection')
-	# 		expect(response.read).to be == "Hello World!"
-	# 	end
-	# end
+		it "get valid response" do
+			expect(response.read).to be == "Hello World!"
+		end
+	end
 	
-	# context 'REQUEST_URI', timeout: 1 do
-	# 	include_context Falcon::Server
-	# 	let(:protocol) {Async::HTTP::Protocol::HTTP2}
+	with 'REQUEST_URI', timeout: 1 do
+		let(:app) do
+			lambda do |env|
+				[200, {}, ["REQUEST_URI: #{env['REQUEST_URI']}"]]
+			end
+		end
 		
-	# 	let(:app) do
-	# 		lambda do |env|
-	# 			[200, {}, ["REQUEST_URI: #{env['REQUEST_URI']}"]]
-	# 		end
-	# 	end
+		let(:response) {client.get("/?foo=bar")}
 		
-	# 	let(:response) {client.get("/?foo=bar")}
-		
-	# 	it "get valid REQUEST_URI" do
-	# 		expect(response.read).to be == "REQUEST_URI: /?foo=bar"
-	# 	end
-	# end
+		it "get valid REQUEST_URI" do
+			expect(response.read).to be == "REQUEST_URI: /?foo=bar"
+		end
+	end
 	
-	# context 'websockets', timeout: 1 do
-	# 	include_context Falcon::Server
-		
-	# 	let(:endpoint) {Async::HTTP::Endpoint.parse('http://127.0.0.1:9294', reuse_port: true)}
-		
-	# 	let(:app) do
-	# 		lambda do |env|
-	# 			Async::WebSocket::Adapters::Rack.open(env) do |connection|
-	# 				while message = connection.read
-	# 					connection.write(message)
-	# 				end
-					
-	# 				connection.close
-	# 			end or [200, {}, []]
-	# 		end
-	# 	end
-		
-	# 	let(:test_message) do
-	# 		{
-	# 			user: "test",
-	# 			status: "connected",
-	# 		}
-	# 	end
-		
-	# 	it "can send and receive messages using websockets" do
-	# 		Async::WebSocket::Client.connect(endpoint) do |connection|
-	# 			connection.write(test_message)
+	with 'streaming response' do
+		let(:app) do
+			lambda do |env|
+				body = lambda do |stream|
+					stream.write("Hello Streaming World")
+					stream.close
+				end
 				
-	# 			message = connection.read
-	# 			expect(message).to be == test_message
-	# 		end
-	# 	end
-	# end
-	
-	# context 'streaming' do
-	# 	include_context Falcon::Server
+				[200, {}, body]
+			end
+		end
 		
-	# 	let(:app) do
-	# 		lambda do |env|
-	# 			body = lambda do |stream|
-	# 				stream.write("Hello Streaming World")
-	# 				stream.close
-	# 			end
-				
-	# 			[200, {}, body]
-	# 		end
-	# 	end
+		let(:response) {client.get("/")}
 		
-	# 	let(:response) {client.get("/")}
-		
-	# 	it "can read streaming response" do
-	# 		expect(response.read).to be == "Hello Streaming World"
-	# 	end
-	# end
+		it "can read streaming response" do
+			expect(response.read).to be == "Hello Streaming World"
+		end
+	end
+end
+
+[
+	Async::HTTP::Protocol::HTTP10,
+	Async::HTTP::Protocol::HTTP11,
+	Async::HTTP::Protocol::HTTP2,
+].each do |klass|
+	describe(klass, unique: klass.name) do
+		it_behaves_like Adapter
+	end
 end

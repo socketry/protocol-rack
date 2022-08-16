@@ -28,7 +28,7 @@ module Protocol
 		module Body
 			CONTENT_LENGTH = 'content-length'
 			
-			def self.wrap(status, headers, body)
+			def self.wrap(status, headers, body, input = nil)
 				# In no circumstance do we want this header propagating out:
 				if length = headers.delete(CONTENT_LENGTH)
 					# We don't really trust the user to provide the right length to the transport.
@@ -50,7 +50,7 @@ module Protocol
 				elsif body.respond_to?(:each)
 					body = Body::Enumerable.wrap(body, length)
 				else
-					body = Body::Streaming.new(body)
+					body = Body::Streaming.new(body, input)
 				end
 			end
 		end
