@@ -44,18 +44,21 @@ end
 While not tested, in theory any Rack compatible server can host `Protocol::HTTP` compatible middlewares.
 
 ```ruby
+require 'protocol/http/middleware'
+require 'protocol/rack'
+
 # Your native application:
 middleware = Protocol::HTTP::Middleware::HelloWorld
 
-run do |env|
+run proc{|env|
   # Convert the rack request to a compatible rich request object:
   request = Protocol::Rack::Request[env]
   
   # Call your application
   response = middleware.call(request)
   
-  Protocol::Rack::Adaptor.make_response(env, response)
-end
+  Protocol::Rack::Adapter.make_response(env, response)
+}
 ```
 
 ## Contributing
