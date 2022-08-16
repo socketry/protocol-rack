@@ -28,8 +28,10 @@ describe Protocol::Rack::Request do
 	let(:adapter) {Protocol::Rack::Adapter.new(app)}
 	
 	with 'incoming rack env' do
+		let(:body) {Protocol::HTTP::Body::Buffered.new}
+		
 		let(:request) {Protocol::HTTP::Request.new(
-			'https', 'example.com', 'GET', '/', 'http/1.1', Protocol::HTTP::Headers[{'accept' => 'text/html'}], Protocol::HTTP::Body::Buffered.new
+			'https', 'example.com', 'GET', '/', 'http/1.1', Protocol::HTTP::Headers[{'accept' => 'text/html'}], body
 		)}
 		
 		let(:env) {adapter.make_env(request)}

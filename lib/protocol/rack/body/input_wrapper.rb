@@ -44,6 +44,12 @@ module Protocol
 					end
 				end
 				
+				# def join
+				# 	@io.read.tap do |buffer|
+				# 		buffer.force_encoding(Encoding::BINARY)
+				# 	end
+				# end
+				
 				def read
 					@io&.read(@block_size)
 				end
