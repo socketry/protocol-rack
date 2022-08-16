@@ -77,28 +77,22 @@ module Protocol
 				
 				# In some situations we don't know the content length, e.g. when using chunked encoding, or when decompressing the body.
 				if body = request.body and length = body.length
-					env[CGI::ONTENT_LENGTH] = length.to_s
+					env[CGI::CONTENT_LENGTH] = length.to_s
 				end
 				
 				self.unwrap_headers(request.headers, env)
 				
 				# HTTP/2 prefers `:authority` over `host`, so we do this for backwards compatibility.
 				env[CGI::HTTP_HOST] ||= request.authority
-				
-				# This is the HTTP/1 header for the scheme of the request and is used by Rack. Technically it should use the Forwarded header but this is not common yet.
-				# https://tools.ietf.org/html/rfc7239#section-5.4
-				# https://github.com/rack/rack/issues/1310
-				env[CGI::HTTP_X_FORWARDED_PROTO] ||= request.scheme
-				
-				if remote_address = request.remote_address
-					env[CGI::REMOTE_ADDR] = remote_address.ip_address if remote_address.ip?
+							
+				if request.respond_to?(:remote_address)
+					if remote_address = request.remote_address
+						env[CGI::REMOTE_ADDR] = remote_address.ip_address if remote_address.ip?
+					end
 				end
 			end
 			
-			# Build a rack `env` from the incoming request and apply it to the rack middleware.
-			#
-			# @parameter request [Protocol::HTTP::Request] The incoming request.
-			def call(request)
+			def make_env(request)
 				request_path, query_string = request.path.split('?', 2)
 				server_name, server_port = (request.authority || '').split(':', 2)
 				
@@ -138,6 +132,15 @@ module Protocol
 				}
 				
 				self.unwrap_request(request, env)
+				
+				return env
+			end
+			
+			# Build a rack `env` from the incoming request and apply it to the rack middleware.
+			#
+			# @parameter request [Protocol::HTTP::Request] The incoming request.
+			def call(request)
+				env = self.make_env(request)
 				
 				status, headers, body = @app.call(env)
 				

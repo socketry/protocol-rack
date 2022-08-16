@@ -20,53 +20,31 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-require 'protocol/http/request'
+require 'protocol/rack/body/input_wrapper'
 
-require_relative 'body/input_wrapper'
-
-module Protocol
-	module Rack
-		class Request < ::Protocol::HTTP::Request
-			def self.[](env)
-				env['protocol.http.request'] ||= new(env)
+describe Protocol::Rack::Body::InputWrapper do
+	with 'file' do
+		let(:contents) {File.read(__FILE__)}
+		let(:body) {subject.new(File.open(__FILE__, "r"), block_size: 128)}
+		
+		it "can read all contents" do
+			expect(body.join).to be == contents
+		ensure
+			body.close
+		end
+		
+		it "can read all contents in chunks" do
+			chunks = []
+			while chunk = body.read
+				chunks << chunk
 			end
-
-			def initialize(env)
-				@env = env
-
-				super(
-					@env['rack.url_scheme'],
-					@env['HTTP_HOST'],
-					@env['REQUEST_METHOD'],
-					@env['PATH_INFO'],
-					@env['SERVER_PROTOCOL'],
-					self.class.headers(@env),
-					Body::InputWrapper.new(@env['rack.input']),
-					self.class.protocol(@env)
-				)
-			end
-
-			HTTP_UPGRADE = 'HTTP_UPGRADE'
-
-			def self.protocol(env)
-				if protocols = env['rack.protocol']
-					return Array(protocols)
-				elsif protocols = env[HTTP_UPGRADE]
-					return protocols.split(/\s*,\s*/)
-				end
-			end
-
-			def self.headers(env)
-				headers = ::Protocol::HTTP::Headers.new
-				env.each do |key, value|			
-					if key.start_with?('HTTP_')
-						next if key == 'HTTP_HOST'
-						headers[key[5..-1].gsub('_', '-').downcase] = value
-					end
-				end
-
-				return headers
-			end
+			
+			# Check we have a couple of chunks:
+			expect(chunks.size).to be > 1
+			
+			expect(chunks.join).to be == contents
+		ensure
+			body.close
 		end
 	end
 end

@@ -20,52 +20,33 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-require 'protocol/http/request'
-
-require_relative 'body/input_wrapper'
+require 'protocol/http/body/readable'
+require 'protocol/http/body/stream'
 
 module Protocol
 	module Rack
-		class Request < ::Protocol::HTTP::Request
-			def self.[](env)
-				env['protocol.http.request'] ||= new(env)
-			end
-
-			def initialize(env)
-				@env = env
-
-				super(
-					@env['rack.url_scheme'],
-					@env['HTTP_HOST'],
-					@env['REQUEST_METHOD'],
-					@env['PATH_INFO'],
-					@env['SERVER_PROTOCOL'],
-					self.class.headers(@env),
-					Body::InputWrapper.new(@env['rack.input']),
-					self.class.protocol(@env)
-				)
-			end
-
-			HTTP_UPGRADE = 'HTTP_UPGRADE'
-
-			def self.protocol(env)
-				if protocols = env['rack.protocol']
-					return Array(protocols)
-				elsif protocols = env[HTTP_UPGRADE]
-					return protocols.split(/\s*,\s*/)
+		module Body
+			# Used for wrapping a generic `rack.input` object into a readable body.
+			class InputWrapper < Protocol::HTTP::Body::Readable
+				BLOCK_SIZE = 1024*4
+				
+				def initialize(io, block_size: BLOCK_SIZE)
+					@io = io
+					@block_size = block_size
+					
+					super()
 				end
-			end
-
-			def self.headers(env)
-				headers = ::Protocol::HTTP::Headers.new
-				env.each do |key, value|			
-					if key.start_with?('HTTP_')
-						next if key == 'HTTP_HOST'
-						headers[key[5..-1].gsub('_', '-').downcase] = value
+				
+				def close(error = nil)
+					if @io
+						@io.close
+						@io = nil
 					end
 				end
-
-				return headers
+				
+				def read
+					@io&.read(@block_size)
+				end
 			end
 		end
 	end
