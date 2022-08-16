@@ -14,5 +14,5 @@ group :test do
 	gem 'bake-test'
 	gem 'bake-test-external'
 	
-	gem 'async-http'
+	gem 'async-http', "~> 0.59"
 end

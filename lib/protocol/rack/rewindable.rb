@@ -60,8 +60,8 @@ module Protocol
 				return false
 			end
 			
-			def make_env(request)
-				@delegate.make_env(request)
+			def make_environment(request)
+				@delegate.make_environment(request)
 			end
 			
 			# Wrap the request body in a rewindable buffer if required.

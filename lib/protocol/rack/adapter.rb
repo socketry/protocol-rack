@@ -26,12 +26,18 @@ require_relative 'adapter/rack3'
 module Protocol
 	module Rack
 		module Adapter
+			if ::Rack::RELEASE >= "3"
+				IMPLEMENTATION = Rack3
+			else
+				IMPLEMENTATION = Rack2
+			end
+			
 			def self.new(app)
-				if ::Rack::RELEASE >= "3"
-					Adapter::Rack3.wrap(app)
-				else
-					Adapter::Rack2.wrap(app)
-				end
+				IMPLEMENTATION.wrap(app)
+			end
+			
+			def self.make_response(env, response)
+				IMPLEMENTATION.make_response(env, response)
 			end
 		end
 	end

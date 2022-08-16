@@ -34,7 +34,7 @@ describe Protocol::Rack::Request do
 			'https', 'example.com', 'GET', '/', 'http/1.1', Protocol::HTTP::Headers[{'accept' => 'text/html'}], body
 		)}
 		
-		let(:env) {adapter.make_env(request)}
+		let(:env) {adapter.make_environment(request)}
 		
 		it "can restore request from original request" do
 			expect(subject[env]).to be == request

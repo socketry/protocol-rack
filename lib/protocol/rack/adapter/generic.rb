@@ -99,7 +99,7 @@ module Protocol
 				#
 				# @parameter request [Protocol::HTTP::Request] The incoming request.
 				def call(request)
-					env = self.make_env(request)
+					env = self.make_environment(request)
 					
 					status, headers, body = @app.call(env)
 					

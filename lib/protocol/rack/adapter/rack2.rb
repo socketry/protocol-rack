@@ -34,11 +34,14 @@ module Protocol
 				RACK_MULTIPROCESS = 'rack.multiprocess'
 				RACK_RUN_ONCE = 'rack.run_once'
 				
+				RACK_IS_HIJACK = 'rack.hijack?'
+				RACK_HIJACK = 'rack.hijack'
+				
 				def self.wrap(app)
 					Rewindable.new(self.new(app))
 				end
 				
-				def make_env(request)
+				def make_environment(request)
 					request_path, query_string = request.path.split('?', 2)
 					server_name, server_port = (request.authority || '').split(':', 2)
 					
@@ -85,6 +88,23 @@ module Protocol
 					self.unwrap_request(request, env)
 					
 					return env
+				end
+				
+				def self.make_response(env, response)
+					# These interfaces should be largely compatible:
+					headers = response.headers.to_h
+					if protocol = response.protocol
+						headers['rack.protocol'] = protocol
+					end
+					
+					if body = response.body and body.stream?
+						if env[RACK_IS_HIJACK]
+							headers[RACK_HIJACK] = body
+							body = []
+						end
+					end
+					  
+					[response.status, headers, body]
 				end
 			end
 		end
