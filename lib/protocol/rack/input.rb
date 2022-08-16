@@ -82,6 +82,24 @@ module Protocol
 				return nil
 			end
 			
+			# Rewind the input stream back to the start.
+			#
+			# `rewind` must be called without arguments. It rewinds the input stream back to the beginning. It must not raise Errno::ESPIPE: that is, it may not be a pipe or a socket. Therefore, handler developers must buffer the input data into some rewindable object if the underlying input stream is not rewindable.
+			#
+			# @returns [Boolean] Whether the body could be rewound.
+			def rewind
+				if @body and @body.respond_to?(:rewind)
+					# If the body is not rewindable, this will fail.
+					@body.rewind
+					@buffer = nil
+					@finished = false
+					
+					return true
+				end
+				
+				return false
+			end
+			
 			# Whether the stream has been closed.
 			def closed?
 				@body.nil?

@@ -24,7 +24,7 @@ require 'protocol/rack/adapter'
 require 'server_context'
 require 'disable_console_context'
 
-describe Protocol::Rack::Adapter do
+describe Protocol::Rack::Adapter::Generic do
 	let(:adapter) {subject.new(lambda{})}
 	
 	with '#unwrap_headers' do
@@ -46,9 +46,11 @@ Adapter = Sus::Shared('an adapter') do
 	
 	with 'successful response' do
 		let(:app) do
-			lambda do |env|
-				[200, {}, ["Hello World!"]]
-			end
+			Rack::Lint.new(
+				lambda do |env|
+					[200, {}, ["Hello World!"]]
+				end
+			)
 		end
 		
 		let(:response) {client.get("/")}

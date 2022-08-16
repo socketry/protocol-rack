@@ -41,7 +41,7 @@ describe Protocol::Rack::Request do
 		end
 		
 		it "can regenerate request from generic env" do
-			env.delete(Protocol::Rack::Adapter::PROTOCOL_HTTP_REQUEST)
+			env.delete(Protocol::Rack::PROTOCOL_HTTP_REQUEST)
 			
 			wrapped_request = subject[env]
 			

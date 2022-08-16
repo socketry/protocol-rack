@@ -14,6 +14,5 @@ group :test do
 	gem 'bake-test'
 	gem 'bake-test-external'
 	
-	gem 'async-io'
-	gem 'async-rspec'
+	gem 'async-http'
 end

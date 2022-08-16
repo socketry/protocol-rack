@@ -29,6 +29,9 @@ require 'console'
 
 module Protocol
 	module Rack
+		# Used for injecting the raw request in the the rack environment.
+		PROTOCOL_HTTP_REQUEST = "protocol.http.request"
+		
 		# CGI keys <https://tools.ietf.org/html/rfc3875#section-4.1>:
 		module CGI
 			HTTP_HOST = 'HTTP_HOST'
