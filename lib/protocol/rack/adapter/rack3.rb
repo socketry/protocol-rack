@@ -85,7 +85,7 @@ module Protocol
 					
 					if body = response.body and body.stream?
 						# Force streaming response:
-						body = proc{|stream| body.call(stream)}
+						body = body.method(:call)
 					end
 					  
 					[response.status, headers, body]
