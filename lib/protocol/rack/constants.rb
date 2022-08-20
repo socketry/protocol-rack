@@ -20,13 +20,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-require 'rack'
-
-require_relative 'input'
-require_relative 'response'
-
-require 'console'
-
 module Protocol
 	module Rack
 		# Used for injecting the raw request in the the rack environment.
