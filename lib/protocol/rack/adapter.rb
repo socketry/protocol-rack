@@ -20,7 +20,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-require 'rack/version'
+require 'rack'
 
 require_relative 'adapter/rack2'
 require_relative 'adapter/rack3'

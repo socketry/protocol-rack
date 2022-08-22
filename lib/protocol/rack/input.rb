@@ -105,9 +105,9 @@ module Protocol
 				@body.nil?
 			end
 			
-			# Whether there are any output chunks remaining?
+			# Whether there are any input chunks remaining?
 			def empty?
-				@output.empty?
+				@body.nil?
 			end
 			
 			private

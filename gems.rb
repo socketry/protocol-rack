@@ -10,7 +10,7 @@ group :maintenance, optional: true do
 end
 
 group :test do
-	gem 'sus'
+	gem 'sus', '~> 0.10.0'
 	gem 'bake-test'
 	gem 'bake-test-external'
 	

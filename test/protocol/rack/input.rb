@@ -33,6 +33,8 @@ describe Protocol::Rack::Input do
 		it "can close input body" do
 			expect(body).to receive(:close)
 			input.close
+			
+			expect(input).to be(:empty?)
 		end
 
 		with '#read(length, buffer)' do
