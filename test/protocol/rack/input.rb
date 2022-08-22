@@ -157,7 +157,13 @@ describe Protocol::Rack::Input do
 				expect(buffer).to be == ""
 			end
 		end
-				
+		
+		with '#each' do
+			it "can read no input" do
+				expect(input.each.to_a).to be == []
+			end
+		end
+		
 		it "should be closed" do
 			expect(input).to be(:closed?)
 		end

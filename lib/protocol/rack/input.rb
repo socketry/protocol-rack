@@ -44,31 +44,20 @@ module Protocol
 			# @attribute [Protocol::HTTP::Body::Readable]
 			attr :body
 			
+			include Protocol::HTTP::Body::Stream::Reader
+			
+			alias gets read_partial
+			
 			# Enumerate chunks of the request body.
 			# @yields {|chunk| ...}
 			# 	@parameter chunk [String]
 			def each(&block)
 				return to_enum unless block_given?
 				
-				while chunk = gets
+				return if closed? 
+				
+				while chunk = read_partial
 					yield chunk
-				end
-			end
-			
-			include Protocol::HTTP::Body::Stream::Reader
-			
-			# Read the next chunk of data from the input stream.
-			#
-			# `gets` must be called without arguments and return a `String`, or `nil` when the input stream has no more data.
-			#
-			# @returns [String | Nil] The next chunk from the body.
-			def gets
-				if @buffer.nil?
-					return read_next
-				else
-					buffer = @buffer
-					@buffer = nil
-					return buffer
 				end
 			end
 			
@@ -116,7 +105,6 @@ module Protocol
 				if @body
 					@body.read
 				else
-					@body = nil
 					raise IOError, "Stream is not readable, input has been closed!"
 				end
 			end
