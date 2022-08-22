@@ -90,6 +90,27 @@ module Protocol
 					return env
 				end
 				
+				# Process the rack response headers into into a {Protocol::HTTP::Headers} instance, along with any extra `rack.` metadata.
+				# @returns [Tuple(Protocol::HTTP::Headers, Hash)]
+				def wrap_headers(fields)
+					headers = ::Protocol::HTTP::Headers.new
+					meta = {}
+					
+					fields.each do |key, value|
+						key = key.downcase
+						
+						if key.start_with?('rack.')
+							meta[key] = value
+						else
+							value.split("\n").each do |value|
+								headers[key] = value
+							end
+						end
+					end
+					
+					return headers, meta
+				end
+				
 				def self.make_response(env, response)
 					# These interfaces should be largely compatible:
 					headers = response.headers.to_h

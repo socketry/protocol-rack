@@ -21,18 +21,17 @@
 # THE SOFTWARE.
 
 require 'disable_console_context'
-require 'protocol/rack/adapter/rack2'
+require 'protocol/rack/adapter/rack3'
 
-describe Protocol::Rack::Adapter::Rack2 do
+describe Protocol::Rack::Adapter::Rack3 do
 	let(:app) {->(env) {[200, {}, []]}}
 	let(:adapter) {subject.new(app)}
 	
-	let(:body) {Protocol::HTTP::Body::Buffered.new}
-	let(:request) {Protocol::HTTP::Request.new('https', 'example.com', 'GET', '/', 'http/1.1', Protocol::HTTP::Headers[{'accept' => 'text/html'}], body)}
+	let(:request) {Protocol::HTTP::Request.new('https', 'example.com', 'GET', '/', 'http/1.1', Protocol::HTTP::Headers[{'accept' => 'text/html'}], Protocol::HTTP::Body::Buffered.new)}
 	let(:response) {adapter.call(request)}
 	
 	with 'set-cookie headers that has multiple values' do
-		let(:app) {->(env) {[200, {'set-cookie' => "a=b\nx=y"}, []]}}
+		let(:app) {->(env) {[200, {'set-cookie' => ['a=b', 'x=y']}, []]}}
 		
 		it "can make a response newline separated headers" do
 			expect(response.headers['set-cookie']).to be == ["a=b", "x=y"]

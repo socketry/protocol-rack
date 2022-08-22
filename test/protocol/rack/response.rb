@@ -24,48 +24,22 @@ require 'protocol/rack/response'
 require 'disable_console_context'
 
 describe Protocol::Rack::Response do
-	with 'connection: close header' do
+	let(:status) {200}
+	let(:headers) {Hash.new}
+	let(:meta) {Hash.new}
+	let(:body) {Array.new}
+	
+	let(:response) {subject.wrap(status, Protocol::HTTP::Headers[headers], meta, body)}
+	
+	with 'hop headers' do
 		include DisableConsoleContext
-		let(:response) {subject.new(200, {'connnection' => 'close'}, [])}
 		
-		it "should have connection: close header" do
+		let(:headers) {{'connection' => 'keep-alive', 'keep-alive' => 'timeout=10, max=100'}}
+		
+		it 'ignores hop headers' do
 			expect(response.headers).not.to be(:include?, 'connection')
-		end
-	end
-	
-	with 'multiple set-cookie headers' do
-		let(:response) {subject.wrap(200, {'set-cookie' => ["a", "b"]}, [])}
-		let(:fields) {response.headers.fields}
-		
-		it "should generate multiple headers" do
-			expect(fields).to be(:include?, ['set-cookie', 'a'])
-			expect(fields).to be(:include?, ['set-cookie', 'b'])
-		end
-	end
-	
-	with '#to_path' do
-		let(:body) {Array.new}
-		
-		it "should generate file body" do
-			expect(body).to receive(:to_path).and_return("/dev/null")
-			
-			response = subject.wrap(200, {}, body)
-			
-			expect(response.body).to be(:kind_of?, Protocol::HTTP::Body::File)
-		end
-		
-		it "should not modify partial responses" do
-			response = subject.wrap(206, {}, body)
-			
-			expect(response.body).to be(:kind_of?, Protocol::Rack::Body::Enumerable)
-		end
-	end
-	
-	with 'with content-length' do
-		it "should remove header" do
-			response = subject.wrap(200, {'content-length' => '4'}, ["1234"])
-			
-			expect(response.headers).not.to be(:include?, 'content-length')
+			expect(response.headers).not.to be(:include?, 'keep-alive')
+			expect(response.headers).to be(:empty?)
 		end
 	end
 end
