@@ -21,6 +21,7 @@
 # THE SOFTWARE.
 
 require 'protocol/http/request'
+require 'protocol/http/headers'
 
 require_relative 'body/input_wrapper'
 
