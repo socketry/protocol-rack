@@ -93,8 +93,10 @@ module Protocol
 				def self.make_response(env, response)
 					# These interfaces should be largely compatible:
 					headers = response.headers.to_h
+					
 					if protocol = response.protocol
 						headers['rack.protocol'] = protocol
+						# headers['upgrade'] = protocol
 					end
 					
 					if body = response.body and body.stream?
@@ -103,7 +105,11 @@ module Protocol
 							body = []
 						end
 					end
-					  
+					
+					headers.transform_values! do |value|
+						value.is_a?(Array) ? value.join("\n") : value
+					end
+					
 					[response.status, headers, body]
 				end
 			end
