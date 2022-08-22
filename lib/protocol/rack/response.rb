@@ -51,38 +51,14 @@ module Protocol
 				'upgrade',
 			]
 			
-			# Process the rack response headers into into a {Protocol::HTTP::Headers} instance, along with any extra `rack.` metadata.
-			# @returns [Tuple(Protocol::HTTP::Headers, Hash)]
-			def self.wrap_headers(fields)
-				headers = ::Protocol::HTTP::Headers.new
-				meta = {}
-				
-				fields.each do |key, value|
-					key = key.downcase
-					
-					if key.start_with?('rack.')
-						meta[key] = value
-					elsif value.is_a?(Array)
-						value.each do |value|
-							headers[key] = value
-						end
-					else
-						headers[key] = value
-					end
-				end
-				
-				return headers, meta
-			end
-			
 			# Wrap a rack response.
 			# @parameter status [Integer] The rack response status.
 			# @parameter headers [Duck(:each)] The rack response headers.
 			# @parameter body [Duck(:each, :close) | Nil] The rack response body.
 			# @parameter request [Protocol::HTTP::Request] The original request.
-			def self.wrap(status, headers, body, request = nil)
-				headers, meta = wrap_headers(headers)
-
+			def self.wrap(status, headers, meta, body, request = nil)
 				ignored = headers.extract(HOP_HEADERS)
+				
 				unless ignored.empty?
 					Console.logger.warn(self, "Ignoring protocol-level headers: #{ignored.inspect}")
 				end

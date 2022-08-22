@@ -103,7 +103,9 @@ module Protocol
 					
 					status, headers, body = @app.call(env)
 					
-					return Response.wrap(status, headers, body, request)
+					headers, meta = self.wrap_headers(headers)
+					
+					return Response.wrap(status, headers, meta, body, request)
 				rescue => exception
 					Console.logger.error(self) {exception}
 					
