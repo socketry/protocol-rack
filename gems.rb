@@ -11,6 +11,7 @@ end
 
 group :test do
 	gem 'sus', '~> 0.10.0'
+	gem 'sus-fixtures-async-http', '~> 0.1.1'
 	gem 'bake-test'
 	gem 'bake-test-external'
 	

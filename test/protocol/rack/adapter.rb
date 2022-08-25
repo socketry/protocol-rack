@@ -23,8 +23,8 @@
 require 'rack/lint'
 
 require 'protocol/rack/adapter'
-require 'server_context'
 require 'disable_console_context'
+require 'server_context'
 
 describe Protocol::Rack::Adapter::Generic do
 	let(:adapter) {subject.new(lambda{})}
