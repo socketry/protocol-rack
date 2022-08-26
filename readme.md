@@ -8,14 +8,14 @@ Provides abstractions for working with the Rack specification on top of [`Protoc
 
   - Supports Rack v2 and Rack v3 application adapters.
   - Supports Rack environment to `Protocol::HTTP::Request` adapter.
- 
+
 ## Usage
 
 ### Application Adapter
 
 Given a rack application, you can adapt it for use on `async-http`:
 
-```ruby
+``` ruby
 require 'async'
 require 'async/http/server'
 require 'async/http/client'
@@ -43,7 +43,7 @@ end
 
 While not tested, in theory any Rack compatible server can host `Protocol::HTTP` compatible middlewares.
 
-```ruby
+``` ruby
 require 'protocol/http/middleware'
 require 'protocol/rack'
 
@@ -75,27 +75,3 @@ We welcome contributions to this project.
 
   - [protocol-http](https://github.com/socketry/protocol-http) — General abstractions for HTTP client/server implementations.
   - [async-http](https://github.com/socketry/async-http) — Asynchronous HTTP client and server, supporting multiple HTTP protocols & TLS, which can host the Rack application adapters (and is used by this gem for testing).
-
-## License
-
-Released under the MIT license.
-
-Copyright, 2022, by [Samuel G. D. Williams](http://www.codeotaku.com/samuel-williams).
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.

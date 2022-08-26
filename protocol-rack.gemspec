@@ -15,10 +15,16 @@ Gem::Specification.new do |spec|
 	
 	spec.homepage = "https://github.com/socketry/protocol-rack"
 	
-	spec.files = Dir.glob('{lib}/**/*', File::FNM_DOTMATCH, base: __dir__)
+	spec.files = Dir.glob(['{lib}/**/*', '*.md'], File::FNM_DOTMATCH, base: __dir__)
 	
 	spec.required_ruby_version = ">= 2.5"
 	
 	spec.add_dependency "protocol-http", "~> 0.23.4"
 	spec.add_dependency "rack", ">= 1.0"
+	
+	spec.add_development_dependency "async-http", "~> 0.59"
+	spec.add_development_dependency "bake-test"
+	spec.add_development_dependency "bake-test-external"
+	spec.add_development_dependency "sus", "~> 0.10.0"
+	spec.add_development_dependency "sus-fixtures-async-http", "~> 0.1.1"
 end
