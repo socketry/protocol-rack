@@ -34,5 +34,6 @@ module Protocol
 		RACK_INPUT = 'rack.input'
 		RACK_URL_SCHEME = 'rack.url_scheme'
 		RACK_PROTOCOL = 'rack.protocol'
+		RACK_RESPONSE_FINISHED = 'rack.response_finished'
 	end
 end

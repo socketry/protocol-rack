@@ -4,6 +4,7 @@
 # Copyright, 2022, by Samuel Williams.
 
 require 'disable_console_context'
+require 'protocol/http/request'
 require 'protocol/rack/adapter/rack3'
 
 describe Protocol::Rack::Adapter::Rack3 do
@@ -42,10 +43,10 @@ describe Protocol::Rack::Adapter::Rack3 do
 	with 'body that responds to #to_path' do
 		let(:body) {Array.new}
 		let(:app) {->(env) {[200, {}, body]}}
-	
+		
 		it "should generate file body" do
 			expect(body).to receive(:to_path).and_return("/dev/null")
-						
+			
 			expect(response.body).to be(:kind_of?, Protocol::HTTP::Body::File)
 		end
 	
@@ -55,6 +56,18 @@ describe Protocol::Rack::Adapter::Rack3 do
 			it "should not modify partial responses" do
 				expect(response.body).to be(:kind_of?, Protocol::Rack::Body::Enumerable)
 			end
+		end
+	end
+	
+	with 'a request that has response finished callbacks' do
+		let(:callback) {->(env, status, headers, error){}}
+		let(:app) {->(env) {env['rack.response_finished'] << callback; [200, {}, ["Hello World!"]]}}
+		
+		it "should call the callbacks" do
+			expect(callback).to receive(:call)
+			
+			expect(response).to be(:success?)
+			expect(response.read).to be == "Hello World!"
 		end
 	end
 end

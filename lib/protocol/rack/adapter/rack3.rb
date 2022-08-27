@@ -25,9 +25,12 @@ module Protocol
 						RACK_INPUT => Input.new(request.body),
 						RACK_ERRORS => $stderr,
 						RACK_LOGGER => self.logger,
-
+						
 						# The request protocol, either from the upgrade header or the HTTP/2 pseudo header of the same name.
 						RACK_PROTOCOL => request.protocol,
+						
+						# The response finished callbacks:
+						RACK_RESPONSE_FINISHED => [],
 						
 						# The HTTP request method, such as “GET” or “POST”. This cannot ever be an empty string, and so is always required.
 						CGI::REQUEST_METHOD => request.method,
@@ -39,7 +42,7 @@ module Protocol
 						CGI::PATH_INFO => request_path,
 						CGI::REQUEST_PATH => request_path,
 						CGI::REQUEST_URI => request.path,
-
+						
 						# The portion of the request URL that follows the ?, if any. May be empty, but is always required!
 						CGI::QUERY_STRING => query_string || '',
 						
@@ -93,7 +96,7 @@ module Protocol
 						# Force streaming response:
 						body = body.method(:call)
 					end
-					  
+					
 					[response.status, headers, body]
 				end
 			end

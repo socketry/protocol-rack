@@ -39,14 +39,14 @@ module Protocol
 			# @parameter headers [Duck(:each)] The rack response headers.
 			# @parameter body [Duck(:each, :close) | Nil] The rack response body.
 			# @parameter request [Protocol::HTTP::Request] The original request.
-			def self.wrap(status, headers, meta, body, request = nil)
+			def self.wrap(env, status, headers, meta, body, request = nil)
 				ignored = headers.extract(HOP_HEADERS)
 				
 				unless ignored.empty?
 					Console.logger.warn(self, "Ignoring protocol-level headers: #{ignored.inspect}")
 				end
 
-				body = Body.wrap(status, headers, body, request&.body)
+				body = Body.wrap(env, status, headers, body, request&.body)
 
 				if request&.head?
 					# I thought about doing this in Output.wrap, but decided the semantics are too tricky. Specifically, the various ways a rack response body can be wrapped, and the need to invoke #close at the right point.

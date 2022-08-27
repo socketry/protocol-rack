@@ -7,12 +7,13 @@ require 'protocol/rack/response'
 require 'disable_console_context'
 
 describe Protocol::Rack::Response do
+	let(:env) {Hash.new}
 	let(:status) {200}
 	let(:headers) {Hash.new}
 	let(:meta) {Hash.new}
 	let(:body) {Array.new}
 	
-	let(:response) {subject.wrap(status, Protocol::HTTP::Headers[headers], meta, body)}
+	let(:response) {subject.wrap(env, status, Protocol::HTTP::Headers[headers], meta, body)}
 	
 	with 'hop headers' do
 		include DisableConsoleContext
