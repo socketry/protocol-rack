@@ -94,7 +94,7 @@ module Protocol
 					
 					body&.close if body.respond_to?(:close)
 					
-					env&.[](RACK_RESPONSE_FINISHED).each do |callback|
+					env&.[](RACK_RESPONSE_FINISHED)&.each do |callback|
 						callback.call(env, status, headers, exception)
 					end
 					
