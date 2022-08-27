@@ -25,6 +25,7 @@ Gem::Specification.new do |spec|
 	spec.add_development_dependency "async-http", "~> 0.59"
 	spec.add_development_dependency "bake-test"
 	spec.add_development_dependency "bake-test-external"
+	spec.add_development_dependency "covered"
 	spec.add_development_dependency "sus", "~> 0.10.0"
 	spec.add_development_dependency "sus-fixtures-async-http", "~> 0.1.1"
 end
