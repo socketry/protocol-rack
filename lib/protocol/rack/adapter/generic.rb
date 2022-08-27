@@ -101,8 +101,6 @@ module Protocol
 					return failure_response(exception)
 				end
 				
-				private
-
 				# Generate a suitable response for the given exception.
 				# @parameter exception [Exception]
 				# @returns [Protocol::HTTP::Response]
