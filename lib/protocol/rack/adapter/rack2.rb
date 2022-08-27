@@ -33,7 +33,6 @@ module Protocol
 						RACK_MULTITHREAD => false,
 						RACK_MULTIPROCESS => true,
 						RACK_RUN_ONCE => false,
-						RACK_IS_HIJACK => true,
 						
 						PROTOCOL_HTTP_REQUEST => request,
 						
@@ -84,9 +83,10 @@ module Protocol
 					
 					headers, meta = self.wrap_headers(headers)
 					
-					if hijack_body = meta[RACK_HIJACK]
-						body = hijack_body
-					end
+					# Rack 2 spec does not allow only partial hijacking.
+					# if hijack_body = meta[RACK_HIJACK]
+					# 	body = hijack_body
+					# end
 					
 					return Response.wrap(env, status, headers, meta, body, request)
 				rescue => exception
