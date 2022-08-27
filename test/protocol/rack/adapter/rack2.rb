@@ -58,4 +58,13 @@ describe Protocol::Rack::Adapter::Rack2 do
 			end
 		end
 	end
+	
+	with 'a hijacked response' do
+		let(:callback) {->(stream){}}
+		let(:app) {->(env){[200, {'rack.hijack' => callback}, []]}}
+		
+		it "should support hijacking" do
+			expect(response.body).to be(:kind_of?, Protocol::Rack::Body::Streaming)
+		end
+	end
 end

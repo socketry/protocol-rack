@@ -33,6 +33,7 @@ module Protocol
 						RACK_MULTITHREAD => false,
 						RACK_MULTIPROCESS => true,
 						RACK_RUN_ONCE => false,
+						RACK_IS_HIJACK => true,
 						
 						PROTOCOL_HTTP_REQUEST => request,
 						
@@ -71,6 +72,29 @@ module Protocol
 					self.unwrap_request(request, env)
 					
 					return env
+				end
+				
+				# Build a rack `env` from the incoming request and apply it to the rack middleware.
+				#
+				# @parameter request [Protocol::HTTP::Request] The incoming request.
+				def call(request)
+					env = self.make_environment(request)
+					
+					status, headers, body = @app.call(env)
+					
+					headers, meta = self.wrap_headers(headers)
+					
+					if hijack_body = meta[RACK_HIJACK]
+						body = hijack_body
+					end
+					
+					return Response.wrap(env, status, headers, meta, body, request)
+				rescue => exception
+					Console.logger.error(self) {exception}
+					
+					body&.close if body.respond_to?(:close)
+					
+					return failure_response(exception)
 				end
 				
 				# Process the rack response headers into into a {Protocol::HTTP::Headers} instance, along with any extra `rack.` metadata.

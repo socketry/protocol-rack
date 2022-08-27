@@ -46,6 +46,10 @@ module Protocol
 					Console.logger.warn(self, "Ignoring protocol-level headers: #{ignored.inspect}")
 				end
 
+				if hijack_body = meta['rack.hijack']
+					body = hijack_body
+				end
+
 				body = Body.wrap(env, status, headers, body, request&.body)
 
 				if request&.head?
