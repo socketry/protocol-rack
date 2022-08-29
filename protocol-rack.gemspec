@@ -19,13 +19,13 @@ Gem::Specification.new do |spec|
 	
 	spec.required_ruby_version = ">= 2.5"
 	
-	spec.add_dependency "protocol-http", "~> 0.23.4"
+	spec.add_dependency "protocol-http", "~> 0.23"
 	spec.add_dependency "rack", ">= 1.0"
 	
 	spec.add_development_dependency "async-http", "~> 0.59"
-	spec.add_development_dependency "bake-test"
-	spec.add_development_dependency "bake-test-external"
-	spec.add_development_dependency "covered"
-	spec.add_development_dependency "sus", "~> 0.11.0"
-	spec.add_development_dependency "sus-fixtures-async-http", "~> 0.1.1"
+	spec.add_development_dependency "bake-test", "~> 0.1"
+	spec.add_development_dependency "bake-test-external", "~> 0.1"
+	spec.add_development_dependency "covered", "~> 0.16"
+	spec.add_development_dependency "sus", "~> 0.12"
+	spec.add_development_dependency "sus-fixtures-async-http", "~> 0.1"
 end
