@@ -6,12 +6,36 @@
 require 'protocol/rack/body/streaming'
 
 describe Protocol::Rack::Body::Streaming do
-	with 'block' do
-		let(:block) {proc{|stream| stream.write("Hello World")}}
-		let(:body) {subject.new(block)}
-		
+	let(:block) {proc{|stream| stream.write("Hello"); stream.write("World"); stream.close}}
+	let(:body) {subject.new(block)}
+	
+	with '#block' do
 		it "should wrap block" do
 			expect(body.block).to be == block
+		end
+	end
+	
+	with '#read' do
+		it "can read the body" do
+			expect(body.read).to be == "Hello"
+			expect(body.read).to be == "World"
+			expect(body.read).to be == nil
+		end
+	end
+	
+	with '#each' do
+		it "can read the body" do
+			chunks = []
+			body.each{|chunk| chunks << chunk}
+			expect(chunks).to be == ["Hello", "World"]
+		end
+	end
+	
+	with '#call' do
+		it "can read the body" do
+			stream = StringIO.new
+			body.call(stream)
+			expect(stream.string).to be == "HelloWorld"
 		end
 	end
 end

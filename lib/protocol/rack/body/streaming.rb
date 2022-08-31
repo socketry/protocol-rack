@@ -14,40 +14,46 @@ module Protocol
 				def initialize(block, input = nil)
 					@block = block
 					@input = input
+					@output = nil
 				end
 				
 				attr :block
-
-				def each(&block)
-					stream = ::Protocol::HTTP::Body::Stream.new(@input, Output.new(block))
-					
-					@block.call(stream)
-				end
-
-				def stream?
-					true
-				end
-
-				def call(stream)
-					@block.call(stream)
-				end
 				
 				class Output
-					def initialize(block)
-						@block = block
+					def initialize(input, block)
+						stream = ::Protocol::HTTP::Body::Stream.new(input, self)
+						@fiber = Fiber.new do
+							block.call(stream)
+							@fiber = nil
+						end
 					end
 					
 					def write(chunk)
-						@block.call(chunk)
+						Fiber.yield(chunk)
 					end
 					
 					def close
-						@block = nil
+						@fiber = nil
 					end
 					
-					def empty?
-						true
+					def read
+						@fiber&.resume
 					end
+				end
+				
+				# Invokes the block in a fiber which yields chunks when they are available.
+				def read
+					@output ||= Output.new(@input, @block)
+					return @output.read
+				end
+				
+				def stream?
+					true
+				end
+				
+				def call(stream)
+					raise "Streaming body has already been read!" if @output
+					@block.call(stream)
 				end
 			end
 		end
