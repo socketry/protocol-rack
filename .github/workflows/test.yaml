@@ -39,7 +39,7 @@ jobs:
             ruby: truffleruby
             experimental: true
           - os: ubuntu
-            ruby: jruby
+            ruby: jruby-head
             experimental: true
           - os: ubuntu
             ruby: head
