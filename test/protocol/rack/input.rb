@@ -117,7 +117,7 @@ describe Protocol::Rack::Input do
 		
 		with '#closed?' do
 			it "should not be at end of file" do
-				expect(subject).not.to be(:closed?)
+				expect(input).not.to be(:closed?)
 			end
 		end
 	end
