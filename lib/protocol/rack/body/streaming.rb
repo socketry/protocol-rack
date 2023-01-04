@@ -41,6 +41,14 @@ module Protocol
 					end
 				end
 				
+				def empty?
+					if @input
+						@input.empty?
+					else
+						true
+					end
+				end
+				
 				# Invokes the block in a fiber which yields chunks when they are available.
 				def read
 					@output ||= Output.new(@input, @block)
