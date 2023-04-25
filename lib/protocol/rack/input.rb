@@ -18,6 +18,7 @@ module Protocol
 			# @parameter body [Protocol::HTTP::Body::Readable]
 			def initialize(body)
 				@body = body
+				@closed = false
 				
 				# Will hold remaining data in `#read`.
 				@buffer = nil
@@ -46,6 +47,8 @@ module Protocol
 			
 			# Close the input and output bodies.
 			def close(error = nil)
+				@closed = true
+				
 				if @body
 					@body.close(error)
 					@body = nil
@@ -74,7 +77,7 @@ module Protocol
 			
 			# Whether the stream has been closed.
 			def closed?
-				@body.nil?
+				@closed or @body.nil?
 			end
 			
 			# Whether there are any input chunks remaining?
@@ -87,7 +90,7 @@ module Protocol
 			def read_next
 				if @body
 					@body.read
-				else
+				elsif @closed
 					raise IOError, "Stream is not readable, input has been closed!"
 				end
 			end

@@ -136,7 +136,7 @@ describe Protocol::Rack::Input do
 			it "can read partial input" do
 				expect do
 					input.read(2, buffer)
-				end.to raise_exception(IOError)
+				end.not.to raise_exception(IOError)
 				expect(buffer).to be == ""
 			end
 		end
