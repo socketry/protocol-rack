@@ -139,6 +139,14 @@ describe Protocol::Rack::Input do
 				end.not.to raise_exception(IOError)
 				expect(buffer).to be == ""
 			end
+			
+			it "can not read closed input" do
+				expect do
+					input.close
+					input.read(2, buffer)
+				end.to raise_exception(IOError)
+				expect(buffer).to be == ""
+			end
 		end
 		
 		with '#each' do
