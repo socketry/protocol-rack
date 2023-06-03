@@ -75,6 +75,21 @@ Adapter = Sus::Shared('an adapter') do
 		end
 	end
 	
+	with 'non-string header value' do
+		let(:app) do
+			lambda do |env|
+				[200, {'x-custom' => 123}, ["Hello World!"]]
+			end
+		end
+		
+		let(:response) {client.get("/")}
+		
+		it "get valid response" do
+			expect(response.read).to be == "Hello World!"
+			expect(response.headers['x-custom']).to be == ['123']
+		end
+	end
+	
 	with 'REQUEST_URI', timeout: 1 do
 		let(:app) do
 			lambda do |env|

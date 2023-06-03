@@ -11,7 +11,7 @@ require_relative 'adapter/rack3'
 module Protocol
 	module Rack
 		module Adapter
-			if ::Rack::RELEASE >= "3"
+			if ::Rack.release >= "3"
 				IMPLEMENTATION = Rack3
 			else
 				IMPLEMENTATION = Rack2
