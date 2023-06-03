@@ -108,10 +108,12 @@ module Protocol
 						
 						if key.start_with?('rack.')
 							meta[key] = value
-						else
+						elsif value.is_a?(String)
 							value.split("\n").each do |value|
 								headers[key] = value
 							end
+						else
+							headers[key] = value
 						end
 					end
 					

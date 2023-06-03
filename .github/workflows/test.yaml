@@ -14,7 +14,7 @@ jobs:
     runs-on: ${{matrix.os}}-latest
     continue-on-error: ${{matrix.experimental}}
     env:
-      BUNDLER_GEMFILE: ${{matrix.gemfile}}
+      BUNDLE_GEMFILE: ${{matrix.gemfile}}
     
     strategy:
       matrix:
