@@ -7,7 +7,7 @@ Gem::Specification.new do |spec|
 	spec.version = Protocol::Rack::VERSION
 	
 	spec.summary = "An implementation of the Rack protocol/specification."
-	spec.authors = ["Samuel Williams"]
+	spec.authors = ["Samuel Williams", "Genki Takiuchi"]
 	spec.license = "MIT"
 	
 	spec.cert_chain  = ['release.cert']
