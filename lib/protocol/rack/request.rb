@@ -42,7 +42,7 @@ module Protocol
 
 			def self.headers(env)
 				headers = ::Protocol::HTTP::Headers.new
-				env.each do |key, value|			
+				env.each do |key, value|
 					if key.start_with?('HTTP_')
 						next if key == 'HTTP_HOST'
 						headers[key[5..-1].gsub('_', '-').downcase] = value
