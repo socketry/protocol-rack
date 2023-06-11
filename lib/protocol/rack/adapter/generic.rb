@@ -78,6 +78,12 @@ module Protocol
 					end
 				end
 				
+				def make_environment(request)
+					{
+						request: request
+					}
+				end
+				
 				# Build a rack `env` from the incoming request and apply it to the rack middleware.
 				#
 				# @parameter request [Protocol::HTTP::Request] The incoming request.
@@ -85,6 +91,16 @@ module Protocol
 					env = self.make_environment(request)
 					
 					status, headers, body = @app.call(env)
+					
+					# The status must always be an integer.
+					unless status.is_a?(Integer)
+						raise ArgumentError, "Status must be an integer!"
+					end
+					
+					# Headers must always be a hash or equivalent.
+					unless headers
+						raise ArgumentError, "Headers must not be nil!"
+					end
 					
 					headers, meta = self.wrap_headers(headers)
 					
