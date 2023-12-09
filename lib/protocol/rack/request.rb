@@ -6,6 +6,7 @@
 require 'protocol/http/request'
 require 'protocol/http/headers'
 
+require_relative 'constants'
 require_relative 'body/input_wrapper'
 
 module Protocol
@@ -30,12 +31,10 @@ module Protocol
 				)
 			end
 
-			HTTP_UPGRADE = 'HTTP_UPGRADE'
-
 			def self.protocol(env)
 				if protocols = env['rack.protocol']
 					return Array(protocols)
-				elsif protocols = env[HTTP_UPGRADE]
+				elsif protocols = env[CGI::HTTP_UPGRADE]
 					return protocols.split(/\s*,\s*/)
 				end
 			end
