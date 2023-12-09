@@ -17,15 +17,8 @@ Gem::Specification.new do |spec|
 	
 	spec.files = Dir.glob(['{lib}/**/*', '*.md'], File::FNM_DOTMATCH, base: __dir__)
 	
-	spec.required_ruby_version = ">= 2.5"
+	spec.required_ruby_version = ">= 3.0"
 	
 	spec.add_dependency "protocol-http", "~> 0.23"
 	spec.add_dependency "rack", ">= 1.0"
-	
-	spec.add_development_dependency "async-http", "~> 0.59"
-	spec.add_development_dependency "bake-test", "~> 0.1"
-	spec.add_development_dependency "bake-test-external", "~> 0.1"
-	spec.add_development_dependency "covered", "~> 0.16"
-	spec.add_development_dependency "sus", "~> 0.12"
-	spec.add_development_dependency "sus-fixtures-async-http", "~> 0.1"
 end
