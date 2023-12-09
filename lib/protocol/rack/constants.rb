@@ -11,6 +11,7 @@ module Protocol
 		# CGI keys <https://tools.ietf.org/html/rfc3875#section-4.1>:
 		module CGI
 			HTTP_HOST = 'HTTP_HOST'
+			HTTP_UPGRADE = "HTTP_UPGRADE"
 			PATH_INFO = 'PATH_INFO'
 			REQUEST_METHOD = 'REQUEST_METHOD'
 			REQUEST_PATH = 'REQUEST_PATH'

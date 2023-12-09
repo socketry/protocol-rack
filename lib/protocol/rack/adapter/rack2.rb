@@ -126,7 +126,6 @@ module Protocol
 					
 					if protocol = response.protocol
 						headers['rack.protocol'] = protocol
-						# headers['upgrade'] = protocol
 					end
 					
 					if body = response.body and body.stream?
