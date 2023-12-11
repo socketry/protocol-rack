@@ -17,9 +17,6 @@ module Protocol
 				RACK_MULTIPROCESS = 'rack.multiprocess'
 				RACK_RUN_ONCE = 'rack.run_once'
 				
-				RACK_IS_HIJACK = 'rack.hijack?'
-				RACK_HIJACK = 'rack.hijack'
-				
 				def self.wrap(app)
 					Rewindable.new(self.new(app))
 				end

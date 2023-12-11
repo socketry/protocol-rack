@@ -59,6 +59,10 @@ module Protocol
 					
 					self.unwrap_request(request, env)
 					
+					if request.respond_to?(:hijack?) and request.hijack?
+						env[RACK_HIJACK] = proc{request.hijack!.io.dup}
+					end
+					
 					return env
 				end
 				
