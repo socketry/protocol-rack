@@ -73,6 +73,10 @@ module Protocol
 						env[CGI::HTTP_UPGRADE] = Array(protocol).join(",")
 					end
 					
+					if request.respond_to?(:hijack?) and request.hijack?
+						env[RACK_HIJACK] = proc{request.hijack!.io.dup}
+					end
+					
 					# HTTP/2 prefers `:authority` over `host`, so we do this for backwards compatibility.
 					env[CGI::HTTP_HOST] ||= request.authority
 								
