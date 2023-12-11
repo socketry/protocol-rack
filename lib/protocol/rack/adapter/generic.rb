@@ -69,7 +69,7 @@ module Protocol
 					self.unwrap_headers(request.headers, env)
 					
 					# For the sake of compatibility, we set the `HTTP_UPGRADE` header to the requested protocol.
-					if protocol = request.protocol and request.version.start_with?('http/1')
+					if protocol = request.protocol and request.version.start_with?('HTTP/1')
 						env[CGI::HTTP_UPGRADE] = Array(protocol).join(",")
 					end
 					
