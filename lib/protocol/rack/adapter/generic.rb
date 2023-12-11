@@ -74,6 +74,7 @@ module Protocol
 					end
 					
 					if request.respond_to?(:hijack?) and request.hijack?
+						env[RACK_IS_HIJACK] = true
 						env[RACK_HIJACK] = proc{request.hijack!.io.dup}
 					end
 					

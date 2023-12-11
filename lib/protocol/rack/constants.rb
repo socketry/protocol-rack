@@ -36,5 +36,9 @@ module Protocol
 		RACK_URL_SCHEME = 'rack.url_scheme'
 		RACK_PROTOCOL = 'rack.protocol'
 		RACK_RESPONSE_FINISHED = 'rack.response_finished'
+		
+		# Rack hijack support:
+		RACK_IS_HIJACK = 'rack.hijack?'
+		RACK_HIJACK = 'rack.hijack'
 	end
 end
