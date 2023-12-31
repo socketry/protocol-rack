@@ -19,14 +19,16 @@ module Protocol
 				
 				# Initialize the rack adaptor middleware.
 				# @parameter app [Object] The rack middleware.
-				def initialize(app)
+				# @parameter console [Console] The console logger to use. Defaults to socketry/console
+				def initialize(app, console = Console)
 					@app = app
+					@console = console
 					
 					raise ArgumentError, "App must be callable!" unless @app.respond_to?(:call)
 				end
 				
 				def logger
-					Console.logger
+					@console.logger
 				end
 
 				# Unwrap raw HTTP headers into the CGI-style expected by Rack middleware.
@@ -116,7 +118,7 @@ module Protocol
 					
 					return Response.wrap(env, status, headers, meta, body, request)
 				rescue => exception
-					Console.logger.error(self) {exception}
+					@console.logger.error(self) {exception}
 					
 					body&.close if body.respond_to?(:close)
 					
