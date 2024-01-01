@@ -3,8 +3,6 @@
 # Released under the MIT License.
 # Copyright, 2022-2023, by Samuel Williams.
 
-require 'console'
-
 require_relative '../constants'
 require_relative '../input'
 require_relative '../response'
@@ -13,14 +11,14 @@ module Protocol
 	module Rack
 		module Adapter
 			class Generic
-				def self.wrap(app)
-					self.new(app)
+				def self.wrap(app, console)
+					self.new(app, console)
 				end
 				
 				# Initialize the rack adaptor middleware.
 				# @parameter app [Object] The rack middleware.
 				# @parameter console [Console] The console logger to use. Defaults to socketry/console
-				def initialize(app, console = Console)
+				def initialize(app, console) 
 					@app = app
 					@console = console
 					
