@@ -3,8 +3,6 @@
 # Released under the MIT License.
 # Copyright, 2022, by Samuel Williams.
 
-require 'console'
-
 require_relative 'generic'
 
 module Protocol

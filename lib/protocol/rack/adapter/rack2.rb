@@ -3,8 +3,6 @@
 # Released under the MIT License.
 # Copyright, 2022-2023, by Samuel Williams.
 
-require 'console'
-
 require_relative 'generic'
 require_relative '../rewindable'
 
@@ -87,7 +85,7 @@ module Protocol
 					
 					return Response.wrap(env, status, headers, meta, body, request)
 				rescue => exception
-					Console.logger.error(self) {exception}
+					@console.logger.error(self) {exception}
 					
 					body&.close if body.respond_to?(:close)
 					
