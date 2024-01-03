@@ -22,3 +22,5 @@ group :test do
 	gem "bake-test", "~> 0.1"
 	gem "bake-test-external", "~> 0.1"
 end
+
+gem "async-io", "~> 1.38"
