@@ -17,8 +17,8 @@ module Protocol
 				RACK_MULTIPROCESS = 'rack.multiprocess'
 				RACK_RUN_ONCE = 'rack.run_once'
 				
-				def self.wrap(app)
-					Rewindable.new(self.new(app))
+				def self.wrap(app, console)
+					Rewindable.new(self.new(app, console))
 				end
 				
 				def make_environment(request)

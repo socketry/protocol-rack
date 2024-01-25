@@ -11,8 +11,8 @@ module Protocol
 	module Rack
 		module Adapter
 			class Rack3 < Generic
-				def self.wrap(app)
-					self.new(app)
+				def self.wrap(app, console)
+					self.new(app, console)
 				end
 				
 				def make_environment(request)
