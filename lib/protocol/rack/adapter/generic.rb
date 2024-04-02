@@ -17,6 +17,11 @@ module Protocol
 					self.new(app)
 				end
 				
+				def self.parse_file(...)
+					# This is the old interface, which was changed in Rack 3.
+					::Rack::Builder.parse_file(...).first
+				end
+				
 				# Initialize the rack adaptor middleware.
 				# @parameter app [Object] The rack middleware.
 				def initialize(app)
