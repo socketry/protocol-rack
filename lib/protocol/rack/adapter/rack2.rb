@@ -17,6 +17,10 @@ module Protocol
 				RACK_MULTIPROCESS = 'rack.multiprocess'
 				RACK_RUN_ONCE = 'rack.run_once'
 				
+				def self.parse_file(...)
+					::Rack::Builder.parse_file(...).first
+				end
+				
 				def self.wrap(app)
 					Rewindable.new(self.new(app))
 				end

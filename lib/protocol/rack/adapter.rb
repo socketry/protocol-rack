@@ -24,6 +24,10 @@ module Protocol
 			def self.make_response(env, response)
 				IMPLEMENTATION.make_response(env, response)
 			end
+			
+			def self.parse_file(...)
+				IMPLEMENTATION.parse_file(...)
+			end
 		end
 	end
 end
