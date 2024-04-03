@@ -43,7 +43,7 @@ module Protocol
 				ignored = headers.extract(HOP_HEADERS)
 				
 				unless ignored.empty?
-					Console.logger.warn(self, "Ignoring protocol-level headers: #{ignored.inspect}")
+					Console.warn(self, "Ignoring hop headers!", ignored: ignored)
 				end
 
 				if hijack_body = meta['rack.hijack']
