@@ -87,7 +87,7 @@ module Protocol
 					
 					return Response.wrap(env, status, headers, meta, body, request)
 				rescue => exception
-					Console.logger.error(self) {exception}
+					Console.error(self, exception)
 					
 					body&.close if body.respond_to?(:close)
 					

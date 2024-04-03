@@ -31,9 +31,9 @@ module Protocol
 				end
 				
 				def logger
-					Console.logger
+					Console
 				end
-
+				
 				# Unwrap raw HTTP headers into the CGI-style expected by Rack middleware.
 				#
 				# Rack separates multiple headers with the same key, into a single field with multiple lines.
@@ -121,7 +121,7 @@ module Protocol
 					
 					return Response.wrap(env, status, headers, meta, body, request)
 				rescue => exception
-					Console.logger.error(self) {exception}
+					Console.error(self, exception)
 					
 					body&.close if body.respond_to?(:close)
 					
