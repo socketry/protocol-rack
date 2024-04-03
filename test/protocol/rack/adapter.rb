@@ -9,6 +9,14 @@ require 'protocol/rack/adapter'
 require 'disable_console_context'
 require 'server_context'
 
+describe Protocol::Rack::Adapter do
+	let(:rackup_path) {File.expand_path(".adapter/config.ru", __dir__)}
+	
+	it "can load rackup files" do
+		expect(subject.parse_file(rackup_path)).to be_a(Proc)
+	end
+end
+
 describe Protocol::Rack::Adapter::Generic do
 	let(:adapter) {subject.new(lambda{})}
 	
