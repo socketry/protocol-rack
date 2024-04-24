@@ -4,7 +4,6 @@
 # Copyright, 2022-2023, by Samuel Williams.
 # Copyright, 2023, by Genki Takiuchi.
 
-require 'async/io/buffer'
 require 'protocol/http/body/stream'
 
 module Protocol

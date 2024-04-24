@@ -22,7 +22,7 @@ describe Protocol::Rack::Input do
 		end
 
 		with '#read(length, buffer)' do
-			let(:buffer) {Async::IO::Buffer.new}
+			let(:buffer) {String.new}
 			let(:expected_output) {sample_data.join}
 			
 			it "can read partial input" do
@@ -127,7 +127,7 @@ describe Protocol::Rack::Input do
 		let(:input) {subject.new(nil)}
 		
 		with '#read(length, buffer)' do
-			let(:buffer) {Async::IO::Buffer.new}
+			let(:buffer) {String.new}
 			
 			it "can read no input" do
 				expect(input.read(0, buffer)).to be == ""
