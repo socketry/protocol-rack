@@ -1,6 +1,6 @@
 # MIT License
 
-Copyright, 2022-2023, by Samuel Williams.  
+Copyright, 2022-2024, by Samuel Williams.  
 Copyright, 2023, by Genki Takiuchi.  
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
