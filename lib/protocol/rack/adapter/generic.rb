@@ -142,6 +142,20 @@ module Protocol
 				def failure_response(exception)
 					Protocol::HTTP::Response.for_exception(exception)
 				end
+				
+				def self.extract_protocol(env, response, headers)
+					if protocol = response.protocol
+						# This is the newer mechanism for protocol upgrade:
+						if env['rack.protocol']
+							headers['rack.protocol'] = protocol
+						
+						# Older mechanism for protocol upgrade:
+						elsif env[CGI::HTTP_UPGRADE]
+							headers['upgrade'] = protocol
+							headers['connection'] = 'upgrade'
+						end
+					end
+				end
 			end
 		end
 	end

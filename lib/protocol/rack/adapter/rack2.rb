@@ -121,9 +121,7 @@ module Protocol
 					# These interfaces should be largely compatible:
 					headers = response.headers.to_h
 					
-					if protocol = response.protocol
-						headers['rack.protocol'] = protocol
-					end
+					self.extract_protocol(env, response, headers)
 					
 					if body = response.body and body.stream?
 						if env[RACK_IS_HIJACK]

@@ -92,9 +92,8 @@ module Protocol
 				def self.make_response(env, response)
 					# These interfaces should be largely compatible:
 					headers = response.headers.to_h
-					if protocol = response.protocol
-						headers['rack.protocol'] = protocol
-					end
+					
+					self.extract_protocol(env, response, headers)
 					
 					if body = response.body and body.stream?
 						# Force streaming response:
