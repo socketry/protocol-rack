@@ -21,13 +21,27 @@ describe Protocol::Rack::Adapter::Generic do
 	let(:adapter) {subject.new(lambda{})}
 	
 	with '#unwrap_headers' do
-		let(:fields) {[['cookie', 'a=b'], ['cookie', 'x=y']]}
-		let(:env) {Hash.new}
-		
-		it "should merge duplicate headers" do
-			adapter.unwrap_headers(fields, env)
+		with 'cookie header' do
+			let(:fields) {[['cookie', 'a=b'], ['cookie', 'x=y']]}
+			let(:env) {Hash.new}
 			
-			expect(env).to be == {'HTTP_COOKIE' => "a=b;x=y"}
+			it "should merge duplicate headers" do
+				adapter.unwrap_headers(fields, env)
+				
+				# I'm not convinced this is standard behaviour:
+				expect(env).to be == {'HTTP_COOKIE' => "a=b;x=y"}
+			end
+		end
+		
+		with 'multiple accept headers' do
+			let(:fields) {[['accept', 'text/html'], ['accept', 'application/json']]}
+			let(:env) {Hash.new}
+			
+			it "should merge duplicate headers" do
+				adapter.unwrap_headers(fields, env)
+				
+				expect(env).to be == {'HTTP_ACCEPT' => "text/html,application/json"}
+			end
 		end
 	end
 end

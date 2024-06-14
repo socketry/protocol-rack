@@ -25,6 +25,8 @@ module Protocol
 			CONTENT_TYPE = 'CONTENT_TYPE'
 			CONTENT_LENGTH = 'CONTENT_LENGTH'
 			
+			HTTP_COOKIE = 'HTTP_COOKIE'
+			
 			# Header constants:
 			HTTP_X_FORWARDED_PROTO = 'HTTP_X_FORWARDED_PROTO'
 		end
