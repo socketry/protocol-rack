@@ -11,7 +11,7 @@ require_relative '../rewindable'
 module Protocol
 	module Rack
 		module Adapter
-			class Rack2	< Generic
+			class Rack2 < Generic
 				RACK_VERSION = 'rack.version'
 				RACK_MULTITHREAD = 'rack.multithread'
 				RACK_MULTIPROCESS = 'rack.multiprocess'
