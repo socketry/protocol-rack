@@ -92,19 +92,21 @@ describe Protocol::Rack::Input do
 		end
 		
 		with '#gets' do
+			let(:sample_data) {"The quick brown\nfox jumped over the lazy dog\n"}
+			
 			it "can read chunks" do
-				sample_data.each do |chunk|
-					expect(input.gets).to be == chunk
+				sample_data.each_line do |line|
+					expect(input.gets).to be == line
 				end
 				
 				expect(input.gets).to be == nil
 			end
 			
 			it "returns remainder after calling #read" do
-				expect(input.read(4)).to be == "Theq"
-				expect(input.gets).to be == "uick"
-				expect(input.read(4)).to be == "brow"
-				expect(input.gets).to be == "n"
+				expect(input.read(4)).to be == "The "
+				expect(input.gets).to be == "quick brown\n"
+				expect(input.read(4)).to be == "fox "
+				expect(input.gets).to be == "jumped over the lazy dog\n"
 			end
 		end
 		

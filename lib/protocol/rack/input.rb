@@ -30,8 +30,6 @@ module Protocol
 			
 			include Protocol::HTTP::Body::Stream::Reader
 			
-			alias gets read_partial
-			
 			# Enumerate chunks of the request body.
 			# @yields {|chunk| ...}
 			# 	@parameter chunk [String]
