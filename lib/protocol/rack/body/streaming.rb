@@ -22,22 +22,38 @@ module Protocol
 				class Output
 					def initialize(input, block)
 						stream = ::Protocol::HTTP::Body::Stream.new(input, self)
-						@fiber = Fiber.new do
+						
+						@from = nil
+						
+						@fiber = Fiber.new do |from|
+							@from = from
 							block.call(stream)
 							@fiber = nil
 						end
 					end
 					
 					def write(chunk)
-						Fiber.yield(chunk)
+						if from = @from
+							@from = nil
+							@from = from.transfer(chunk)
+						else
+							raise RuntimeError, "Stream is not being read!"
+						end
 					end
 					
 					def close
 						@fiber = nil
+						
+						if from = @from
+							@from = nil
+							from.transfer(nil)
+						end
 					end
 					
 					def read
-						@fiber&.resume
+						raise RuntimeError, "Stream is already being read!" if @from
+						
+						@fiber&.transfer(Fiber.current)
 					end
 				end
 				
