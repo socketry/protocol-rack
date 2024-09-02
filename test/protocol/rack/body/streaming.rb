@@ -38,4 +38,18 @@ describe Protocol::Rack::Body::Streaming do
 			expect(stream.string).to be == "HelloWorld"
 		end
 	end
+	
+	with "nested fiber" do
+		let(:block) do
+			proc do |stream|
+				Fiber.new do
+					stream.write("Hello")
+				end.resume
+			end
+		end
+		
+		it "can read a chunk" do
+			expect(body.read).to be == "Hello"
+		end
+	end
 end
