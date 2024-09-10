@@ -41,13 +41,21 @@ module Protocol
 						end
 					end
 					
-					def close
+					def close(error = nil)
 						@fiber = nil
 						
 						if from = @from
 							@from = nil
-							from.transfer(nil)
+							if error
+								from.raise(error)
+							else
+								from.transfer(nil)
+							end
 						end
+					end
+					
+					def close_write(error = nil)
+						close(error)
 					end
 					
 					def read
