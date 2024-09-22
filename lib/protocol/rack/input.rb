@@ -87,7 +87,14 @@ module Protocol
 			
 			def read_next
 				if @body
-					@body.read
+					# User's may forget to call #close...
+					if chunk = @body.read
+						return chunk
+					else
+						# So if we are at the end of the stream, we close it automatically:
+						@body.close
+						@body = nil
+					end
 				elsif @closed
 					raise IOError, "Stream is not readable, input has been closed!"
 				end

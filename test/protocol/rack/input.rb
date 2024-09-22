@@ -44,8 +44,12 @@ describe Protocol::Rack::Input do
 		
 		with '#read' do
 			it "can read all input" do
+				expect(body).to receive(:close)
+				
 				expect(input.read).to be == sample_data.join
 				expect(input.read).to be == ""
+				
+				expect(input.body).to be_nil
 			end
 			
 			it "can read no input" do
@@ -64,6 +68,8 @@ describe Protocol::Rack::Input do
 				expect(input.read).to be == sample_data.join[15..-1]
 				
 				expect(input.read(1)).to be == nil
+				
+				expect(input.body).to be_nil
 			end
 			
 			it "can read partial input with buffer" do
