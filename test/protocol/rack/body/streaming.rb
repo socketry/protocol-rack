@@ -5,15 +5,13 @@
 
 require 'protocol/rack/body/streaming'
 
+require 'sus/fixtures/async/scheduler_context'
+
 describe Protocol::Rack::Body::Streaming do
+	include Sus::Fixtures::Async::SchedulerContext
+	
 	let(:block) {proc{|stream| stream.write("Hello"); stream.write("World"); stream.close}}
 	let(:body) {subject.new(block)}
-	
-	with '#block' do
-		it "should wrap block" do
-			expect(body.block).to be == block
-		end
-	end
 	
 	with '#read' do
 		it "can read the body" do

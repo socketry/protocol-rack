@@ -20,8 +20,9 @@ group :test do
 	gem "decode"
 	gem "rubocop"
 	
-	gem "sus-fixtures-async-http", "~> 0.1"
+	gem "sus-fixtures-async"
+	gem "sus-fixtures-async-http"
 	
-	gem "bake-test", "~> 0.1"
-	gem "bake-test-external", "~> 0.1"
+	gem "bake-test"
+	gem "bake-test-external"
 end
