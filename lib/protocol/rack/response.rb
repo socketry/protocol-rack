@@ -3,12 +3,12 @@
 # Released under the MIT License.
 # Copyright, 2022-2024, by Samuel Williams.
 
-require_relative 'body'
-require_relative 'constants'
+require_relative "body"
+require_relative "constants"
 # require 'time'
 
-require 'protocol/http/response'
-require 'protocol/http/headers'
+require "protocol/http/response"
+require "protocol/http/headers"
 
 module Protocol
 	module Rack
@@ -26,12 +26,12 @@ module Protocol
 		class Response < ::Protocol::HTTP::Response
 			# HTTP hop headers which *should* not be passed through the proxy.
 			HOP_HEADERS = [
-				'connection',
-				'keep-alive',
-				'public',
-				'proxy-authenticate',
-				'transfer-encoding',
-				'upgrade',
+				"connection",
+				"keep-alive",
+				"public",
+				"proxy-authenticate",
+				"transfer-encoding",
+				"upgrade",
 			]
 			
 			# Wrap a rack response.
@@ -46,7 +46,7 @@ module Protocol
 					Console.warn(self, "Ignoring hop headers!", ignored: ignored)
 				end
 
-				if hijack_body = meta['rack.hijack']
+				if hijack_body = meta["rack.hijack"]
 					body = hijack_body
 				end
 

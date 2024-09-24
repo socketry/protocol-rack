@@ -4,13 +4,13 @@
 # Copyright, 2022-2024, by Samuel Williams.
 # Copyright, 2023, by Genki Takiuchi.
 
-require 'protocol/rack/input'
-require 'protocol/http/body/buffered'
+require "protocol/rack/input"
+require "protocol/http/body/buffered"
 
 describe Protocol::Rack::Input do
 	let(:input) {subject.new(body)}
 	
-	with 'body' do
+	with "body" do
 		let(:sample_data) {%w{The quick brown fox jumped over the lazy dog}}
 		let(:body) {Protocol::HTTP::Body::Buffered.new(sample_data)}
 		
@@ -21,7 +21,7 @@ describe Protocol::Rack::Input do
 			expect(input).to be(:empty?)
 		end
 
-		with '#read(length, buffer)' do
+		with "#read(length, buffer)" do
 			let(:buffer) {String.new}
 			let(:expected_output) {sample_data.join}
 			
@@ -42,7 +42,7 @@ describe Protocol::Rack::Input do
 			end
 		end
 		
-		with '#read' do
+		with "#read" do
 			it "can read all input" do
 				expect(body).to receive(:close)
 				
@@ -97,7 +97,7 @@ describe Protocol::Rack::Input do
 			end
 		end
 		
-		with '#gets' do
+		with "#gets" do
 			let(:sample_data) {"The quick brown\nfox jumped over the lazy dog\n"}
 			
 			it "can read chunks" do
@@ -116,7 +116,7 @@ describe Protocol::Rack::Input do
 			end
 		end
 		
-		with '#each' do
+		with "#each" do
 			it "can read chunks" do
 				input.each.with_index do |chunk, index|
 					expect(chunk).to be == sample_data[index]
@@ -124,17 +124,17 @@ describe Protocol::Rack::Input do
 			end
 		end
 		
-		with '#closed?' do
+		with "#closed?" do
 			it "should not be at end of file" do
 				expect(input).not.to be(:closed?)
 			end
 		end
 	end
 	
-	with 'no body' do
+	with "no body" do
 		let(:input) {subject.new(nil)}
 		
-		with '#read(length, buffer)' do
+		with "#read(length, buffer)" do
 			let(:buffer) {String.new}
 			
 			it "can read no input" do
@@ -158,7 +158,7 @@ describe Protocol::Rack::Input do
 			end
 		end
 		
-		with '#each' do
+		with "#each" do
 			it "can read no input" do
 				expect(input.each.to_a).to be == []
 			end

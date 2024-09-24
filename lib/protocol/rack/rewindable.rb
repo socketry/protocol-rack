@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
 # Released under the MIT License.
-# Copyright, 2022, by Samuel Williams.
+# Copyright, 2022-2024, by Samuel Williams.
 
-require 'protocol/http/body/rewindable'
-require 'protocol/http/middleware'
+require "protocol/http/body/rewindable"
+require "protocol/http/middleware"
 
 module Protocol
 	module Rack
@@ -18,7 +18,7 @@ module Protocol
 				multipart/mixed
 			}x
 			
-			POST = 'POST'
+			POST = "POST"
 			
 			# Initialize the rewindable middleware.
 			# @parameter app [Protocol::HTTP::Middleware] The middleware to wrap.
@@ -30,7 +30,7 @@ module Protocol
 			# @parameter request [Protocol::HTTP::Request]
 			# @returns [Boolean]
 			def needs_rewind?(request)
-				content_type = request.headers['content-type']
+				content_type = request.headers["content-type"]
 				
 				if request.method == POST and content_type.nil?
 					return true

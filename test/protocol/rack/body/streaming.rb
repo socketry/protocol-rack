@@ -3,9 +3,9 @@
 # Released under the MIT License.
 # Copyright, 2022-2024, by Samuel Williams.
 
-require 'protocol/rack/body/streaming'
+require "protocol/rack/body/streaming"
 
-require 'sus/fixtures/async/scheduler_context'
+require "sus/fixtures/async/scheduler_context"
 
 describe Protocol::Rack::Body::Streaming do
 	include Sus::Fixtures::Async::SchedulerContext
@@ -13,7 +13,7 @@ describe Protocol::Rack::Body::Streaming do
 	let(:block) {proc{|stream| stream.write("Hello"); stream.write("World"); stream.close}}
 	let(:body) {subject.new(block)}
 	
-	with '#read' do
+	with "#read" do
 		it "can read the body" do
 			expect(body.read).to be == "Hello"
 			expect(body.read).to be == "World"
@@ -21,7 +21,7 @@ describe Protocol::Rack::Body::Streaming do
 		end
 	end
 	
-	with '#each' do
+	with "#each" do
 		it "can read the body" do
 			chunks = []
 			body.each{|chunk| chunks << chunk}
@@ -29,7 +29,7 @@ describe Protocol::Rack::Body::Streaming do
 		end
 	end
 	
-	with '#call' do
+	with "#call" do
 		it "can read the body" do
 			stream = StringIO.new
 			body.call(stream)

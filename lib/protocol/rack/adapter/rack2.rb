@@ -3,27 +3,27 @@
 # Released under the MIT License.
 # Copyright, 2022-2024, by Samuel Williams.
 
-require 'console'
+require "console"
 
-require_relative 'generic'
-require_relative '../rewindable'
+require_relative "generic"
+require_relative "../rewindable"
 
 module Protocol
 	module Rack
 		module Adapter
 			class Rack2 < Generic
-				RACK_VERSION = 'rack.version'
-				RACK_MULTITHREAD = 'rack.multithread'
-				RACK_MULTIPROCESS = 'rack.multiprocess'
-				RACK_RUN_ONCE = 'rack.run_once'
+				RACK_VERSION = "rack.version"
+				RACK_MULTITHREAD = "rack.multithread"
+				RACK_MULTIPROCESS = "rack.multiprocess"
+				RACK_RUN_ONCE = "rack.run_once"
 				
 				def self.wrap(app)
 					Rewindable.new(self.new(app))
 				end
 				
 				def make_environment(request)
-					request_path, query_string = request.path.split('?', 2)
-					server_name, server_port = (request.authority || '').split(':', 2)
+					request_path, query_string = request.path.split("?", 2)
+					server_name, server_port = (request.authority || "").split(":", 2)
 					
 					env = {
 						RACK_VERSION => [2, 0],
@@ -44,7 +44,7 @@ module Protocol
 						CGI::REQUEST_METHOD => request.method,
 						
 						# The initial portion of the request URL's “path” that corresponds to the application object, so that the application knows its virtual “location”. This may be an empty string, if the application corresponds to the “root” of the server.
-						CGI::SCRIPT_NAME => '',
+						CGI::SCRIPT_NAME => "",
 						
 						# The remainder of the request URL's “path”, designating the virtual “location” of the request's target within the application. This may be an empty string, if the request URL targets the application root and does not have a trailing slash. This value may be percent-encoded when originating from a URL.
 						CGI::PATH_INFO => request_path,
@@ -52,7 +52,7 @@ module Protocol
 						CGI::REQUEST_URI => request.path,
 
 						# The portion of the request URL that follows the ?, if any. May be empty, but is always required!
-						CGI::QUERY_STRING => query_string || '',
+						CGI::QUERY_STRING => query_string || "",
 						
 						# The server protocol (e.g. HTTP/1.1):
 						CGI::SERVER_PROTOCOL => request.version,
@@ -103,7 +103,7 @@ module Protocol
 					fields.each do |key, value|
 						key = key.downcase
 						
-						if key.start_with?('rack.')
+						if key.start_with?("rack.")
 							meta[key] = value
 						elsif value.is_a?(String)
 							value.split("\n").each do |value|

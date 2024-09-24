@@ -3,25 +3,25 @@
 # Released under the MIT License.
 # Copyright, 2022-2024, by Samuel Williams.
 
-require 'protocol/rack/request'
-require 'protocol/rack/adapter'
+require "protocol/rack/request"
+require "protocol/rack/adapter"
 
 describe Protocol::Rack::Request do
 	let(:app) {proc{|env| [200, {}, []]}}
 	let(:adapter) {Protocol::Rack::Adapter.new(app)}
 	
-	let(:headers) {Protocol::HTTP::Headers[{'accept' => 'text/html'}]}
+	let(:headers) {Protocol::HTTP::Headers[{"accept" => "text/html"}]}
 	let(:body) {Protocol::HTTP::Body::Buffered.new}
 	
 	let(:request) {Protocol::HTTP::Request.new(
-		'https', 'example.com', 'GET', '/', 'HTTP/1.1', headers, body
+		"https", "example.com", "GET", "/", "HTTP/1.1", headers, body
 	)}
 	
 	let(:env) {adapter.make_environment(request)}
 	
 	let(:wrapped_request) {subject.new(env)}
 	
-	with 'incoming rack env' do
+	with "incoming rack env" do
 		it "can restore request from original request" do
 			expect(subject[env]).to be == request
 		end
@@ -38,8 +38,8 @@ describe Protocol::Rack::Request do
 		end
 	end
 	
-	with 'incoming rack env which includes HTTP upgrade' do
-		let(:headers) {Protocol::HTTP::Headers[{'upgrade' => 'websocket'}]}
+	with "incoming rack env which includes HTTP upgrade" do
+		let(:headers) {Protocol::HTTP::Headers[{"upgrade" => "websocket"}]}
 		
 		it "can extract upgrade request" do
 			expect(wrapped_request).to have_attributes(
@@ -48,14 +48,14 @@ describe Protocol::Rack::Request do
 		end
 	end
 	
-	with 'incoming rack env which includes rack.protocol' do
+	with "incoming rack env which includes rack.protocol" do
 		let(:request) {Protocol::HTTP::Request.new(
-			'https', 'example.com', 'GET', '/', 'HTTP/1.1', headers, body, ["websocket"]
+			"https", "example.com", "GET", "/", "HTTP/1.1", headers, body, ["websocket"]
 		)}
 		
 		it "can extract upgrade request" do
 			expect(env).to have_keys(
-				'HTTP_UPGRADE' => be == 'websocket',
+				"HTTP_UPGRADE" => be == "websocket",
 			)
 			
 			expect(wrapped_request).to have_attributes(

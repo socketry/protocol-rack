@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
 # Released under the MIT License.
-# Copyright, 2022, by Samuel Williams.
+# Copyright, 2022-2024, by Samuel Williams.
 
-require 'protocol/http/body/readable'
-require 'protocol/http/body/file'
+require "protocol/http/body/readable"
+require "protocol/http/body/file"
 
 module Protocol
 	module Rack
@@ -13,7 +13,7 @@ module Protocol
 			#
 			# The `rack` body must respond to `each` and must only yield `String` values. If the body responds to `close`, it will be called after iteration.
 			class Enumerable < ::Protocol::HTTP::Body::Readable
-				CONTENT_LENGTH = 'content-length'.freeze
+				CONTENT_LENGTH = "content-length".freeze
 				
 				# Wraps an array into a buffered body.
 				# @parameter body [Object] The `rack` response body.

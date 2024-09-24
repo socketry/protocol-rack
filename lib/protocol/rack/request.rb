@@ -1,38 +1,38 @@
 # frozen_string_literal: true
 
 # Released under the MIT License.
-# Copyright, 2022-2023, by Samuel Williams.
+# Copyright, 2022-2024, by Samuel Williams.
 
-require 'protocol/http/request'
-require 'protocol/http/headers'
+require "protocol/http/request"
+require "protocol/http/headers"
 
-require_relative 'constants'
-require_relative 'body/input_wrapper'
+require_relative "constants"
+require_relative "body/input_wrapper"
 
 module Protocol
 	module Rack
 		class Request < ::Protocol::HTTP::Request
 			def self.[](env)
-				env['protocol.http.request'] ||= new(env)
+				env["protocol.http.request"] ||= new(env)
 			end
 
 			def initialize(env)
 				@env = env
 
 				super(
-					@env['rack.url_scheme'],
-					@env['HTTP_HOST'],
-					@env['REQUEST_METHOD'],
-					@env['PATH_INFO'],
-					@env['SERVER_PROTOCOL'],
+					@env["rack.url_scheme"],
+					@env["HTTP_HOST"],
+					@env["REQUEST_METHOD"],
+					@env["PATH_INFO"],
+					@env["SERVER_PROTOCOL"],
 					self.class.headers(@env),
-					Body::InputWrapper.new(@env['rack.input']),
+					Body::InputWrapper.new(@env["rack.input"]),
 					self.class.protocol(@env)
 				)
 			end
 
 			def self.protocol(env)
-				if protocols = env['rack.protocol']
+				if protocols = env["rack.protocol"]
 					return Array(protocols)
 				elsif protocols = env[CGI::HTTP_UPGRADE]
 					return protocols.split(/\s*,\s*/)
@@ -42,9 +42,9 @@ module Protocol
 			def self.headers(env)
 				headers = ::Protocol::HTTP::Headers.new
 				env.each do |key, value|
-					if key.start_with?('HTTP_')
-						next if key == 'HTTP_HOST'
-						headers[key[5..-1].gsub('_', '-').downcase] = value
+					if key.start_with?("HTTP_")
+						next if key == "HTTP_HOST"
+						headers[key[5..-1].gsub("_", "-").downcase] = value
 					end
 				end
 

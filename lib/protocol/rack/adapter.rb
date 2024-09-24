@@ -3,10 +3,10 @@
 # Released under the MIT License.
 # Copyright, 2022-2024, by Samuel Williams.
 
-require 'rack'
+require "rack"
 
-require_relative 'adapter/rack2'
-require_relative 'adapter/rack3'
+require_relative "adapter/rack2"
+require_relative "adapter/rack3"
 
 module Protocol
 	module Rack

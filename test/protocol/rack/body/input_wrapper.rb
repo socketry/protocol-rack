@@ -1,12 +1,12 @@
 # frozen_string_literal: true
 
 # Released under the MIT License.
-# Copyright, 2022, by Samuel Williams.
+# Copyright, 2022-2024, by Samuel Williams.
 
-require 'protocol/rack/body/input_wrapper'
+require "protocol/rack/body/input_wrapper"
 
 describe Protocol::Rack::Body::InputWrapper do
-	with 'file' do
+	with "file" do
 		let(:contents) {File.read(__FILE__)}
 		let(:body) {subject.new(File.open(__FILE__, "r"), block_size: 128)}
 		

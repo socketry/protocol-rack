@@ -1,16 +1,16 @@
 # frozen_string_literal: true
 
 # Released under the MIT License.
-# Copyright, 2022, by Samuel Williams.
+# Copyright, 2022-2024, by Samuel Williams.
 
-require_relative 'body/streaming'
-require_relative 'body/enumerable'
-require 'protocol/http/body/completable'
+require_relative "body/streaming"
+require_relative "body/enumerable"
+require "protocol/http/body/completable"
 
 module Protocol
 	module Rack
 		module Body
-			CONTENT_LENGTH = 'content-length'
+			CONTENT_LENGTH = "content-length"
 			
 			def self.wrap(env, status, headers, body, input = nil)
 				# In no circumstance do we want this header propagating out:

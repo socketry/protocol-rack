@@ -1,12 +1,12 @@
 # frozen_string_literal: true
 
 # Released under the MIT License.
-# Copyright, 2022, by Samuel Williams.
+# Copyright, 2022-2024, by Samuel Williams.
 
-require 'protocol/rack/body/enumerable'
+require "protocol/rack/body/enumerable"
 
 describe Protocol::Rack::Body::Enumerable do
-	with 'empty body' do
+	with "empty body" do
 		let(:body) {subject.new([], nil)}
 		
 		it "should be empty?" do
@@ -14,7 +14,7 @@ describe Protocol::Rack::Body::Enumerable do
 		end
 	end
 	
-	with 'single string body' do
+	with "single string body" do
 		let(:body) {subject.new(["Hello World"], nil)}
 		
 		it "should not be empty?" do

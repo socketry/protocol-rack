@@ -3,11 +3,11 @@
 # Released under the MIT License.
 # Copyright, 2022-2024, by Samuel Williams.
 
-require 'console'
+require "console"
 
-require_relative '../constants'
-require_relative '../input'
-require_relative '../response'
+require_relative "../constants"
+require_relative "../input"
+require_relative "../response"
 
 module Protocol
 	module Rack
@@ -66,7 +66,7 @@ module Protocol
 				# @parameter request [Protocol::HTTP::Request] The incoming request.
 				# @parameter env [Hash] The rack `env`.
 				def unwrap_request(request, env)
-					if content_type = request.headers.delete('content-type')
+					if content_type = request.headers.delete("content-type")
 						env[CGI::CONTENT_TYPE] = content_type
 					end
 					
@@ -78,7 +78,7 @@ module Protocol
 					self.unwrap_headers(request.headers, env)
 					
 					# For the sake of compatibility, we set the `HTTP_UPGRADE` header to the requested protocol.
-					if protocol = request.protocol and request.version.start_with?('HTTP/1')
+					if protocol = request.protocol and request.version.start_with?("HTTP/1")
 						env[CGI::HTTP_UPGRADE] = Array(protocol).join(",")
 					end
 					
@@ -146,13 +146,13 @@ module Protocol
 				def self.extract_protocol(env, response, headers)
 					if protocol = response.protocol
 						# This is the newer mechanism for protocol upgrade:
-						if env['rack.protocol']
-							headers['rack.protocol'] = protocol
+						if env["rack.protocol"]
+							headers["rack.protocol"] = protocol
 						
 						# Older mechanism for protocol upgrade:
 						elsif env[CGI::HTTP_UPGRADE]
-							headers['upgrade'] = protocol
-							headers['connection'] = 'upgrade'
+							headers["upgrade"] = protocol
+							headers["connection"] = "upgrade"
 						end
 					end
 				end

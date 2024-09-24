@@ -3,11 +3,11 @@
 # Released under the MIT License.
 # Copyright, 2022-2024, by Samuel Williams.
 
-require 'rack/lint'
+require "rack/lint"
 
-require 'protocol/rack/adapter'
-require 'disable_console_context'
-require 'server_context'
+require "protocol/rack/adapter"
+require "disable_console_context"
+require "server_context"
 
 describe Protocol::Rack::Adapter do
 	let(:rackup_path) {File.expand_path(".adapter/config.ru", __dir__)}
@@ -20,38 +20,38 @@ end
 describe Protocol::Rack::Adapter::Generic do
 	let(:adapter) {subject.new(lambda{})}
 	
-	with '#unwrap_headers' do
-		with 'cookie header' do
-			let(:fields) {[['cookie', 'a=b'], ['cookie', 'x=y']]}
+	with "#unwrap_headers" do
+		with "cookie header" do
+			let(:fields) {[["cookie", "a=b"], ["cookie", "x=y"]]}
 			let(:env) {Hash.new}
 			
 			it "should merge duplicate headers" do
 				adapter.unwrap_headers(fields, env)
 				
 				# I'm not convinced this is standard behaviour:
-				expect(env).to be == {'HTTP_COOKIE' => "a=b;x=y"}
+				expect(env).to be == {"HTTP_COOKIE" => "a=b;x=y"}
 			end
 		end
 		
-		with 'multiple accept headers' do
-			let(:fields) {[['accept', 'text/html'], ['accept', 'application/json']]}
+		with "multiple accept headers" do
+			let(:fields) {[["accept", "text/html"], ["accept", "application/json"]]}
 			let(:env) {Hash.new}
 			
 			it "should merge duplicate headers" do
 				adapter.unwrap_headers(fields, env)
 				
-				expect(env).to be == {'HTTP_ACCEPT' => "text/html,application/json"}
+				expect(env).to be == {"HTTP_ACCEPT" => "text/html,application/json"}
 			end
 		end
 	end
 end
 
-Adapter = Sus::Shared('an adapter') do
+Adapter = Sus::Shared("an adapter") do
 	include ServerContext
 	
 	let(:protocol) {subject}
 	
-	with 'successful response' do
+	with "successful response" do
 		let(:app) do
 			Rack::Lint.new(
 				lambda do |env|
@@ -67,7 +67,7 @@ Adapter = Sus::Shared('an adapter') do
 		end
 	end
 	
-	with 'HTTP_HOST' do
+	with "HTTP_HOST" do
 		let(:app) do
 			lambda do |env|
 				[200, {}, ["HTTP_HOST: #{env['HTTP_HOST']}"]]
@@ -81,12 +81,12 @@ Adapter = Sus::Shared('an adapter') do
 		end
 	end
 	
-	with 'connection: close', timeout: 1 do
+	with "connection: close", timeout: 1 do
 		include DisableConsoleContext
 		
 		let(:app) do
 			lambda do |env|
-				[200, {'connection' => 'close'}, ["Hello World!"]]
+				[200, {"connection" => "close"}, ["Hello World!"]]
 			end
 		end
 		
@@ -97,10 +97,10 @@ Adapter = Sus::Shared('an adapter') do
 		end
 	end
 	
-	with 'non-string header value' do
+	with "non-string header value" do
 		let(:app) do
 			lambda do |env|
-				[200, {'x-custom' => 123}, ["Hello World!"]]
+				[200, {"x-custom" => 123}, ["Hello World!"]]
 			end
 		end
 		
@@ -108,11 +108,11 @@ Adapter = Sus::Shared('an adapter') do
 		
 		it "get valid response" do
 			expect(response.read).to be == "Hello World!"
-			expect(response.headers['x-custom']).to be == ['123']
+			expect(response.headers["x-custom"]).to be == ["123"]
 		end
 	end
 	
-	with 'REQUEST_URI', timeout: 1 do
+	with "REQUEST_URI", timeout: 1 do
 		let(:app) do
 			lambda do |env|
 				[200, {}, ["REQUEST_URI: #{env['REQUEST_URI']}"]]
@@ -126,7 +126,7 @@ Adapter = Sus::Shared('an adapter') do
 		end
 	end
 	
-	with 'streaming response' do
+	with "streaming response" do
 		let(:app) do
 			lambda do |env|
 				body = lambda do |stream|
