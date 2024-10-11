@@ -89,6 +89,13 @@ module Protocol
 				if @body
 					# User's may forget to call #close...
 					if chunk = @body.read
+						# If the user reads exactly the content length, we close the stream automatically:
+						# https://github.com/socketry/async-http/issues/183
+						if @body.empty?
+							@body.close
+							@body = nil
+						end
+						
 						return chunk
 					else
 						# So if we are at the end of the stream, we close it automatically:

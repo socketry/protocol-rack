@@ -52,6 +52,12 @@ describe Protocol::Rack::Input do
 				expect(input.body).to be_nil
 			end
 			
+			it "can read exactly the content length" do
+				expect(body).to receive(:close)
+				
+				expect(input.read(sample_data.join.bytesize)).to be == sample_data.join
+			end
+			
 			it "can read no input" do
 				expect(input.read(0)).to be == ""
 			end
