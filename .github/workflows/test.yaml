@@ -30,7 +30,8 @@ jobs:
         gemfile:
           - gems/rack-v1.rb
           - gems/rack-v2.rb
-          - gems/rack-v3.rb
+          - gems/rack-v30.rb
+          - gems/rack-v31.rb
         
         experimental: [false]
         

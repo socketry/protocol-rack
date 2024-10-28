@@ -5,15 +5,17 @@
 
 require "rack"
 
-require_relative "adapter/rack2"
-require_relative "adapter/rack3"
-
 module Protocol
 	module Rack
 		module Adapter
-			if ::Rack.release >= "3"
+			if ::Rack.release >= "3.1"
+				require_relative "adapter/rack31"
+				IMPLEMENTATION = Rack31
+			elsif ::Rack.release >= "3"
+				require_relative "adapter/rack3"
 				IMPLEMENTATION = Rack3
 			else
+				require_relative "adapter/rack2"
 				IMPLEMENTATION = Rack2
 			end
 			
