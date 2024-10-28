@@ -8,10 +8,12 @@ require "rack"
 module Protocol
 	module Rack
 		module Adapter
-			if ::Rack.release >= "3.1"
+			VERSION = ENV.fetch("PROTOCOL_RACK_ADAPTER_VERSION", ::Rack.release)
+			
+			if VERSION >= "3.1"
 				require_relative "adapter/rack31"
 				IMPLEMENTATION = Rack31
-			elsif ::Rack.release >= "3"
+			elsif VERSION >= "3"
 				require_relative "adapter/rack3"
 				IMPLEMENTATION = Rack3
 			else
