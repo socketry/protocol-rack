@@ -90,10 +90,8 @@ module Protocol
 					# HTTP/2 prefers `:authority` over `host`, so we do this for backwards compatibility.
 					env[CGI::HTTP_HOST] ||= request.authority
 								
-					if request.respond_to?(:remote_address)
-						if remote_address = request.remote_address
-							env[CGI::REMOTE_ADDR] = remote_address.ip_address if remote_address.ip?
-						end
+					if peer = request.peer
+						env[CGI::REMOTE_ADDR] = peer.ip_address
 					end
 				end
 				
