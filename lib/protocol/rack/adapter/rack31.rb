@@ -21,9 +21,6 @@ module Protocol
 						RACK_ERRORS => $stderr,
 						RACK_LOGGER => self.logger,
 						
-						# The request protocol, either from the upgrade header or the HTTP/2 pseudo header of the same name.
-						RACK_PROTOCOL => request.protocol,
-						
 						# The response finished callbacks:
 						RACK_RESPONSE_FINISHED => [],
 						

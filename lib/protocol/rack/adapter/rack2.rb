@@ -37,9 +37,6 @@ module Protocol
 						RACK_ERRORS => $stderr,
 						RACK_LOGGER => self.logger,
 
-						# The request protocol, either from the upgrade header or the HTTP/2 pseudo header of the same name.
-						RACK_PROTOCOL => request.protocol,
-						
 						# The HTTP request method, such as “GET” or “POST”. This cannot ever be an empty string, and so is always required.
 						CGI::REQUEST_METHOD => request.method,
 						
