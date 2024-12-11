@@ -74,6 +74,11 @@ module Protocol
 				# @parameter request [Protocol::HTTP::Request] The incoming request.
 				# @parameter env [Hash] The rack `env`.
 				def unwrap_request(request, env)
+					# The request protocol, either from the upgrade header or the HTTP/2 pseudo header of the same name.
+					if protocol = request.protocol
+						env[RACK_PROTOCOL] = protocol
+					end
+					
 					if content_type = request.headers.delete("content-type")
 						env[CGI::CONTENT_TYPE] = content_type
 					end
