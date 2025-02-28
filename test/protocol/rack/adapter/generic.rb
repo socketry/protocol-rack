@@ -35,6 +35,18 @@ describe Protocol::Rack::Adapter::Generic do
 			expect(env).to have_keys("CONTENT_TYPE" => be == "text/plain")
 		end
 	end
+
+	with "app server without SERVER_PORT" do
+    let(:request) do
+      Protocol::HTTP::Request.new("https", "example.com", "GET", "/", "http/1.1", Protocol::HTTP::Headers[{"accept" => "text/html"}], nil)
+    end
+
+    it "does not include SERVER_PORT in the Rack environment" do
+      env = adapter.make_environment(request)
+      
+      expect(env).not.to have_keys(Protocol::Rack::CGI::SERVER_PORT)
+    end
+  end
 	
 	with "a app that returns nil" do
 		include DisableConsoleContext
