@@ -11,6 +11,8 @@ Provides abstractions for working with the Rack specification on top of [`Protoc
 
 ## Usage
 
+Please see the [project documentation](https://socketry.github.io/protocol-rack/) for more details.
+
 ### Application Adapter
 
 Given a rack application, you can adapt it for use on `async-http`:
@@ -60,6 +62,14 @@ run proc{|env|
   Protocol::Rack::Adapter.make_response(env, response)
 }
 ```
+
+## Releases
+
+Please see the [project releases](https://socketry.github.io/protocol-rack/releases/index) for all releases.
+
+### Unreleased
+
+  - Stop setting `env["SERVER_PORT"]` to `nil` if not present.
 
 ## Contributing
 
