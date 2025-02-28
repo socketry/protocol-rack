@@ -106,9 +106,6 @@ module Protocol
 					if peer = request.peer
 						env[CGI::REMOTE_ADDR] = peer.ip_address
 					end
-
-					# SERVER_PORT should not be set if it is nil
-					env.delete(CGI::SERVER_PORT) if env[CGI::SERVER_PORT].nil?
 				end
 				
 				def make_environment(request)
