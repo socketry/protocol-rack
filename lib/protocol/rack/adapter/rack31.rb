@@ -1,7 +1,8 @@
 # frozen_string_literal: true
 
 # Released under the MIT License.
-# Copyright, 2022-2024, by Samuel Williams.
+# Copyright, 2024-2025, by Samuel Williams.
+# Copyright, 2025, by Francisco Mejia.
 
 require "console"
 
@@ -51,6 +52,11 @@ module Protocol
 					# SERVER_PORT is optional but must not be set if it is not present.
 					if server_port
 						env[CGI::SERVER_PORT] = server_port
+					end
+					
+					# The request protocol, either from the upgrade header or the HTTP/2 pseudo header of the same name.
+					if protocol = request.protocol
+						env[RACK_PROTOCOL] = protocol
 					end
 					
 					if body = request.body

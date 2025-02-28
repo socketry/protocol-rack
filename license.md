@@ -1,7 +1,8 @@
 # MIT License
 
-Copyright, 2022-2024, by Samuel Williams.  
+Copyright, 2022-2025, by Samuel Williams.  
 Copyright, 2023, by Genki Takiuchi.  
+Copyright, 2025, by Francisco Mejia.  
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
