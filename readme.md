@@ -67,7 +67,7 @@ run proc{|env|
 
 Please see the [project releases](https://socketry.github.io/protocol-rack/releases/index) for all releases.
 
-### Unreleased
+### v0.11.2
 
   - Stop setting `env["SERVER_PORT"]` to `nil` if not present.
 
