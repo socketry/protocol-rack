@@ -5,12 +5,17 @@
 
 require_relative "body/streaming"
 require_relative "body/enumerable"
+require_relative "constants"
 require "protocol/http/body/completable"
 
 module Protocol
 	module Rack
 		module Body
 			CONTENT_LENGTH = "content-length"
+			
+			def self.no_content?(status)
+				status == 204 or status == 205 or status == 304
+			end
 			
 			def self.wrap(env, status, headers, body, input = nil)
 				# In no circumstance do we want this header propagating out:
@@ -33,12 +38,29 @@ module Protocol
 					end
 				elsif body.respond_to?(:each)
 					body = Body::Enumerable.wrap(body, length)
-				else
+				elsif body
 					body = Body::Streaming.new(body, input)
+				else
+					Console.warn(self, "Rack response body was nil, ignoring!")
 				end
 				
-				if response_finished = env[RACK_RESPONSE_FINISHED] and response_finished.any?
-					body = ::Protocol::HTTP::Body::Completable.new(body, completion_callback(response_finished, env, status, headers))
+				if body and no_content?(status)
+					unless body.empty?
+						Console.warn(self, "Rack response body was not empty, and status code indicates no content!", body: body, status: status)
+					end
+					
+					body.close
+					body = nil
+				end
+				
+				response_finished = env[RACK_RESPONSE_FINISHED]
+				
+				if response_finished&.any?
+					if body
+						body = ::Protocol::HTTP::Body::Completable.new(body, completion_callback(response_finished, env, status, headers))
+					else
+						completion_callback(response_finished, env, status, headers).call(nil)
+					end
 				end
 				
 				return body
