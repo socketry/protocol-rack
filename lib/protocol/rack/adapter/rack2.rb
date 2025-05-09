@@ -12,16 +12,23 @@ require_relative "../rewindable"
 module Protocol
 	module Rack
 		module Adapter
+			# The Rack 2 adapter provides compatibility with Rack 2.x applications.
+			# It handles the conversion between {Protocol::HTTP} and Rack 2 environments.
 			class Rack2 < Generic
+				# The Rack version constant.
 				RACK_VERSION = "rack.version"
+				# Whether the application is multithreaded.
 				RACK_MULTITHREAD = "rack.multithread"
+				# Whether the application is multiprocess.
 				RACK_MULTIPROCESS = "rack.multiprocess"
+				# Whether the application should run only once.
 				RACK_RUN_ONCE = "rack.run_once"
 				
-				def self.wrap(app)
-					Rewindable.new(self.new(app))
-				end
-				
+				# Create a Rack 2 environment hash for the request.
+				# Sets up all required Rack 2 environment variables and processes the request.
+				# 
+				# @parameter request [Protocol::HTTP::Request] The incoming request.
+				# @returns [Hash] The Rack 2 environment hash.
 				def make_environment(request)
 					request_path, query_string = request.path.split("?", 2)
 					server_name, server_port = (request.authority || "").split(":", 2)
@@ -38,13 +45,13 @@ module Protocol
 						RACK_ERRORS => $stderr,
 						RACK_LOGGER => self.logger,
 
-						# The HTTP request method, such as “GET” or “POST”. This cannot ever be an empty string, and so is always required.
+						# The HTTP request method, such as "GET" or "POST". This cannot ever be an empty string, and so is always required.
 						CGI::REQUEST_METHOD => request.method,
 						
-						# The initial portion of the request URL's “path” that corresponds to the application object, so that the application knows its virtual “location”. This may be an empty string, if the application corresponds to the “root” of the server.
+						# The initial portion of the request URL's "path" that corresponds to the application object, so that the application knows its virtual "location". This may be an empty string, if the application corresponds to the "root" of the server.
 						CGI::SCRIPT_NAME => "",
 						
-						# The remainder of the request URL's “path”, designating the virtual “location” of the request's target within the application. This may be an empty string, if the request URL targets the application root and does not have a trailing slash. This value may be percent-encoded when originating from a URL.
+						# The remainder of the request URL's "path", designating the virtual "location" of the request's target within the application. This may be an empty string, if the request URL targets the application root and does not have a trailing slash. This value may be percent-encoded when originating from a URL.
 						CGI::PATH_INFO => request_path,
 						CGI::REQUEST_PATH => request_path,
 						CGI::REQUEST_URI => request.path,
@@ -75,6 +82,8 @@ module Protocol
 				# Build a rack `env` from the incoming request and apply it to the rack middleware.
 				#
 				# @parameter request [Protocol::HTTP::Request] The incoming request.
+				# @returns [Protocol::HTTP::Response] The HTTP response.
+				# @raises [ArgumentError] If the status is not an integer or headers are nil.
 				def call(request)
 					env = self.make_environment(request)
 					
@@ -110,8 +119,11 @@ module Protocol
 					return failure_response(exception)
 				end
 				
-				# Process the rack response headers into into a {Protocol::HTTP::Headers} instance, along with any extra `rack.` metadata.
-				# @returns [Tuple(Protocol::HTTP::Headers, Hash)]
+				# Process the rack response headers into a {Protocol::HTTP::Headers} instance, along with any extra `rack.` metadata.
+				# Headers with newline-separated values are split into multiple headers.
+				# 
+				# @parameter fields [Hash] The raw response headers.
+				# @returns [Tuple(Protocol::HTTP::Headers, Hash)] The processed headers and metadata.
 				def wrap_headers(fields)
 					headers = ::Protocol::HTTP::Headers.new
 					meta = {}
@@ -133,6 +145,12 @@ module Protocol
 					return headers, meta
 				end
 				
+				# Convert a {Protocol::HTTP::Response} into a Rack 2 response tuple.
+				# Handles protocol upgrades and streaming responses.
+				# 
+				# @parameter env [Hash] The rack environment.
+				# @parameter response [Protocol::HTTP::Response] The HTTP response.
+				# @returns [Tuple(Integer, Hash, Object)] The Rack 2 response tuple [status, headers, body].
 				def self.make_response(env, response)
 					# These interfaces should be largely compatible:
 					headers = response.headers.to_h

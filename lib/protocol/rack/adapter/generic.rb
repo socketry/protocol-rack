@@ -12,28 +12,40 @@ require_relative "../response"
 module Protocol
 	module Rack
 		module Adapter
+			# The base adapter class that provides common functionality for all Rack adapters.
+			# It handles the conversion between {Protocol::HTTP} and Rack environments.
 			class Generic
+				# Creates a new adapter instance for the given Rack application.
+				# Wraps the adapter in a {Rewindable} instance to ensure request body can be read multiple times, which is required for Rack < 3.
+				# 
+				# @parameter app [Interface(:call)] A Rack application.
+				# @returns [Rewindable] A rewindable adapter instance.
 				def self.wrap(app)
-					self.new(app)
+					Rewindable.new(self.new(app))
 				end
 				
+				# Parses a Rackup file and returns the application.
+				# 
+				# @parameter path [String] The path to the Rackup file.
+				# @returns [Interface(:call)] The Rack application.
 				def self.parse_file(...)
 					# This is the old interface, which was changed in Rack 3.
 					::Rack::Builder.parse_file(...).first
 				end
 				
-				def self.streaming?
-					false
-				end
-				
 				# Initialize the rack adaptor middleware.
-				# @parameter app [Object] The rack middleware.
+				# 
+				# @parameter app [Interface(:call)] The rack middleware.
+				# @raises [ArgumentError] If the app does not respond to `call`.
 				def initialize(app)
 					@app = app
 					
 					raise ArgumentError, "App must be callable!" unless @app.respond_to?(:call)
 				end
 				
+				# The logger to use for this adapter.
+				# 
+				# @returns [Console] The console logger.
 				def logger
 					Console
 				end
@@ -112,6 +124,10 @@ module Protocol
 					end
 				end
 				
+				# Create a base environment hash for the request.
+				# 
+				# @parameter request [Protocol::HTTP::Request] The incoming request.
+				# @returns [Hash] The base environment hash.
 				def make_environment(request)
 					{
 						request: request
@@ -121,6 +137,8 @@ module Protocol
 				# Build a rack `env` from the incoming request and apply it to the rack middleware.
 				#
 				# @parameter request [Protocol::HTTP::Request] The incoming request.
+				# @returns [Protocol::HTTP::Response] The HTTP response.
+				# @raises [ArgumentError] If the status is not an integer or headers are nil.
 				def call(request)
 					env = self.make_environment(request)
 					
@@ -152,12 +170,18 @@ module Protocol
 				end
 				
 				# Generate a suitable response for the given exception.
-				# @parameter exception [Exception]
-				# @returns [Protocol::HTTP::Response]
+				# 
+				# @parameter exception [Exception] The exception that occurred.
+				# @returns [Protocol::HTTP::Response] A response representing the error.
 				def failure_response(exception)
 					Protocol::HTTP::Response.for_exception(exception)
 				end
 				
+				# Extract protocol information from the environment and response.
+				# 
+				# @parameter env [Hash] The rack environment.
+				# @parameter response [Protocol::HTTP::Response] The HTTP response.
+				# @parameter headers [Hash] The response headers to modify.
 				def self.extract_protocol(env, response, headers)
 					if protocol = response.protocol
 						# This is the newer mechanism for protocol upgrade:

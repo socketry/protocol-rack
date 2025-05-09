@@ -9,14 +9,19 @@ require "protocol/http/body/file"
 module Protocol
 	module Rack
 		module Body
-			# Wraps the rack response body.
-			#
-			# The `rack` body must respond to `each` and must only yield `String` values. If the body responds to `close`, it will be called after iteration.
+			# Wraps a Rack response body that responds to `each`.
+			# The body must only yield `String` values and may optionally respond to `close`.
+			# This class provides both streaming and buffered access to the response body.
 			class Enumerable < ::Protocol::HTTP::Body::Readable
+				# The content-length header key.
 				CONTENT_LENGTH = "content-length".freeze
 				
-				# Wraps an array into a buffered body.
-				# @parameter body [Object] The `rack` response body.
+				# Wraps a Rack response body into an {Enumerable} instance.
+				# If the body is an Array, its total size is calculated automatically.
+				# 
+				# @parameter body [Object] The Rack response body that responds to `each`.
+				# @parameter length [Integer] Optional content length of the response body.
+				# @returns [Enumerable] A new enumerable body instance.
 				def self.wrap(body, length = nil)
 					if body.is_a?(Array)
 						length ||= body.sum(&:bytesize)
@@ -26,9 +31,10 @@ module Protocol
 					end
 				end
 				
-				# Initialize the output wrapper.
-				# @parameter body [Object] The rack response body.
-				# @parameter length [Integer] The rack response length.
+				# Initialize the enumerable body wrapper.
+				# 
+				# @parameter body [Object] The Rack response body that responds to `each`.
+				# @parameter length [Integer] The content length of the response body.
 				def initialize(body, length)
 					@length = length
 					@body = body
@@ -36,23 +42,32 @@ module Protocol
 					@chunks = nil
 				end
 				
-				# The rack response body.
+				# @attribute [Object] The wrapped Rack response body.
 				attr :body
 				
-				# The content length of the rack response body.
+				# @attribute [Integer] The total size of the response body in bytes.
 				attr :length
 				
-				# Whether the body is empty.
+				# Check if the response body is empty.
+				# A body is considered empty if its length is 0 or if it responds to `empty?` and is empty.
+				# 
+				# @returns [Boolean] True if the body is empty.
 				def empty?
 					@length == 0 or (@body.respond_to?(:empty?) and @body.empty?)
 				end
 				
-				# Whether the body can be read immediately.
+				# Check if the response body can be read immediately.
+				# A body is ready if it's an Array or responds to `to_ary`.
+				# 
+				# @returns [Boolean] True if the body can be read immediately.
 				def ready?
 					body.is_a?(Array) or body.respond_to?(:to_ary)
 				end
 				
 				# Close the response body.
+				# If the body responds to `close`, it will be called.
+				# 
+				# @parameter error [Exception] Optional error that occurred during processing.
 				def close(error = nil)
 					if @body and @body.respond_to?(:close)
 						@body.close
@@ -65,18 +80,29 @@ module Protocol
 				end
 				
 				# Enumerate the response body.
+				# Each chunk yielded must be a String.
+				# The body is automatically closed after enumeration.
+				# 
 				# @yields {|chunk| ...}
-				# 	@parameter chunk [String]
+				# 	@parameter chunk [String] A chunk of the response body.
 				def each(&block)
 					@body.each(&block)
 				ensure
 					self.close($!)
 				end
 				
+				# Check if the body is a streaming response.
+				# A body is streaming if it doesn't respond to `each`.
+				# 
+				# @returns [Boolean] True if the body is streaming.
 				def stream?
 					!@body.respond_to?(:each)
 				end
 
+				# Stream the response body to the given stream.
+				# The body is automatically closed after streaming.
+				# 
+				# @parameter stream [Object] The stream to write the body to.
 				def call(stream)
 					@body.call(stream)
 				ensure
@@ -84,7 +110,9 @@ module Protocol
 				end
 
 				# Read the next chunk from the response body.
-				# @returns [String | Nil]
+				# Returns nil when there are no more chunks.
+				# 
+				# @returns [String | Nil] The next chunk or nil if there are no more chunks.
 				def read
 					@chunks ||= @body.to_enum(:each)
 					
@@ -93,6 +121,9 @@ module Protocol
 					return nil
 				end
 				
+				# Get a string representation of the body.
+				# 
+				# @returns [String] A string describing the body's class and length.
 				def inspect
 					"\#<#{self.class} length=#{@length.inspect} body=#{@body.class}>"
 				end
