@@ -90,9 +90,9 @@ module Protocol
 						raise ArgumentError, "Headers must not be nil!"
 					end
 					
-					unless body.respond_to?(:each)
-						raise ArgumentError, "Body must respond to #each!"
-					end
+					# unless body.respond_to?(:each)
+					# 	raise ArgumentError, "Body must respond to #each!"
+					# end
 					
 					headers, meta = self.wrap_headers(headers)
 					

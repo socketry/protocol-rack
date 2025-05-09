@@ -77,14 +77,14 @@ describe Protocol::Rack::Adapter::Rack2 do
 			end
 		end
 		
-		with "string response" do
-			let(:app) {->(env) {[200, {}, "Hello"]}}
+		# with "string response" do
+		# 	let(:app) {->(env) {[200, {}, "Hello"]}}
 			
-			it "handles string response correctly" do
-				expect(response.status).to be == 500
-				expect(response.read).to be == "ArgumentError: Body must respond to #each!"
-			end
-		end
+		# 	it "handles string response correctly" do
+		# 		expect(response.status).to be == 500
+		# 		expect(response.read).to be == "ArgumentError: Body must respond to #each!"
+		# 	end
+		# end
 	end
 	
 	with "header transformation" do

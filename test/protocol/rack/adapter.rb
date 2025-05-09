@@ -112,7 +112,7 @@ describe Protocol::Rack::Adapter do
 			let(:response) {client.get("/")}
 			
 			it "can read streaming response" do
-				skip "Streaming response not supported"
+				skip "Streaming response not supported" if Protocol::Rack::Adapter::VERSION < "2"
 				
 				expect(response.read).to be == "Hello Streaming World"
 			end
