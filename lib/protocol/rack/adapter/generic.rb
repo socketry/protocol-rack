@@ -8,6 +8,7 @@ require "console"
 require_relative "../constants"
 require_relative "../input"
 require_relative "../response"
+require_relative "../rewindable"
 
 module Protocol
 	module Rack

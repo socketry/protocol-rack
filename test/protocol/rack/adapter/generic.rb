@@ -12,7 +12,7 @@ describe Protocol::Rack::Adapter::Generic do
 	include Sus::Fixtures::Console::CapturedLogger
 	
 	let(:app) {->(env){[200, {}, []]}}
-	let(:adapter) {subject.wrap(app)}
+	let(:adapter) {subject.new(app)}
 	
 	it "can instantiate an adapter" do
 		expect(adapter).not.to be_nil
