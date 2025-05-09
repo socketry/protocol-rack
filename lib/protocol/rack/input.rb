@@ -64,8 +64,10 @@ module Protocol
 				if @body and @body.respond_to?(:rewind)
 					# If the body is not rewindable, this will fail.
 					@body.rewind
+					
 					@buffer = nil
 					@finished = false
+					@closed = false
 					
 					return true
 				end

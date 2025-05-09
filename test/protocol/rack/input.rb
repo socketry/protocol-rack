@@ -54,8 +54,11 @@ describe Protocol::Rack::Input do
 			
 			it "can rewind after reading all input" do
 				expect(input.read).to be == sample_data.join
+				expect(input).to be(:closed?)
+				
 				input.rewind
 				
+				expect(input).not.to be(:closed?)
 				expect(input.read).to be == sample_data.join
 			end
 			
@@ -78,8 +81,11 @@ describe Protocol::Rack::Input do
 			
 			it "can rewind after reading partial input" do
 				expect(input.read(3)).to be == "The"
+				expect(input).not.to be(:closed?)
+				
 				input.rewind
 				
+				expect(input).not.to be(:closed?)
 				expect(input.read(3)).to be == "The"
 			end
 			
