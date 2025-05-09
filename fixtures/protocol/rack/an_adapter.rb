@@ -2,8 +2,11 @@
 # frozen_string_literal: true
 
 require "sus"
+
 require "rack/lint"
+
 require "sus/fixtures/console"
+require "protocol/rack/adapter"
 require "protocol/rack/server_context"
 
 module Protocol

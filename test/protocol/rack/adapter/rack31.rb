@@ -7,9 +7,9 @@ require "sus/fixtures/console"
 
 require "protocol/http/request"
 require "protocol/rack/an_adapter"
-require "protocol/rack/adapter/rack3"
+require "protocol/rack/adapter/rack31"
 
-describe Protocol::Rack::Adapter::Rack3 do
+describe Protocol::Rack::Adapter::Rack31 do
 	include Sus::Fixtures::Console::CapturedLogger
 	
 	let(:app) {->(env) {[200, {}, []]}}

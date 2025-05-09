@@ -48,7 +48,7 @@ module Protocol
 						# I'm not sure what sane defaults should be here:
 						CGI::SERVER_NAME => server_name,
 					}
-
+					
 					# SERVER_PORT is optional but must not be set if it is not present.
 					if server_port
 						env[CGI::SERVER_PORT] = server_port
