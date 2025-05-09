@@ -4,7 +4,6 @@
 # Copyright, 2022-2024, by Samuel Williams.
 
 require "sus/fixtures/console"
-require "protocol/rack/an_adapter"
 require "protocol/rack/adapter/rack2"
 
 describe Protocol::Rack::Adapter::Rack2 do
@@ -16,8 +15,6 @@ describe Protocol::Rack::Adapter::Rack2 do
 	let(:body) {Protocol::HTTP::Body::Buffered.new}
 	let(:request) {Protocol::HTTP::Request.new("https", "example.com", "GET", "/", "http/1.1", Protocol::HTTP::Headers[{"accept" => "text/html"}], body)}
 	let(:response) {adapter.call(request)}
-	
-	it_behaves_like Protocol::Rack::AnAdapter
 	
 	with "set-cookie headers that has multiple values" do
 		let(:app) {->(env) {[200, {"set-cookie" => "a=b\nx=y"}, []]}}

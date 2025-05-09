@@ -20,6 +20,10 @@ module Protocol
 					::Rack::Builder.parse_file(...)
 				end
 				
+				def self.streaming?
+					true
+				end
+				
 				def make_environment(request)
 					request_path, query_string = request.path.split("?", 2)
 					server_name, server_port = (request.authority || "").split(":", 2)

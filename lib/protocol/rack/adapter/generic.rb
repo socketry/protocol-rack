@@ -22,6 +22,10 @@ module Protocol
 					::Rack::Builder.parse_file(...).first
 				end
 				
+				def self.streaming?
+					false
+				end
+				
 				# Initialize the rack adaptor middleware.
 				# @parameter app [Object] The rack middleware.
 				def initialize(app)
