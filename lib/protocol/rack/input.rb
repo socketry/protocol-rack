@@ -93,14 +93,18 @@ module Protocol
 						# https://github.com/socketry/async-http/issues/183
 						if @body.empty?
 							@body.close
-							@body = nil
+							@closed = true
 						end
 						
 						return chunk
 					else
-						# So if we are at the end of the stream, we close it automatically:
-						@body.close
-						@body = nil
+						unless @closed
+							# So if we are at the end of the stream, we close it automatically:
+							@body.close
+							@closed = true
+						end
+						
+						return nil
 					end
 				elsif @closed
 					raise IOError, "Stream is not readable, input has been closed!"

@@ -49,7 +49,14 @@ describe Protocol::Rack::Input do
 				expect(input.read).to be == sample_data.join
 				expect(input.read).to be == ""
 				
-				expect(input.body).to be_nil
+				expect(input).to be(:closed?)
+			end
+			
+			it "can rewind after reading all input" do
+				expect(input.read).to be == sample_data.join
+				input.rewind
+				
+				expect(input.read).to be == sample_data.join
 			end
 			
 			it "can read exactly the content length" do
@@ -69,13 +76,20 @@ describe Protocol::Rack::Input do
 				expect(input.read(3)).to be == "row"
 			end
 			
+			it "can rewind after reading partial input" do
+				expect(input.read(3)).to be == "The"
+				input.rewind
+				
+				expect(input.read(3)).to be == "The"
+			end
+			
 			it "can read all input" do
 				expect(input.read(15)).to be == sample_data.join[0...15]
 				expect(input.read).to be == sample_data.join[15..-1]
 				
 				expect(input.read(1)).to be == nil
 				
-				expect(input.body).to be_nil
+				expect(input).to be(:closed?)
 			end
 			
 			it "can read partial input with buffer" do
