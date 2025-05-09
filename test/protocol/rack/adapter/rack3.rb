@@ -3,16 +3,22 @@
 # Released under the MIT License.
 # Copyright, 2022-2024, by Samuel Williams.
 
-require "disable_console_context"
+require "sus/fixtures/console"
+
 require "protocol/http/request"
 require "protocol/rack/adapter/rack3"
 
 describe Protocol::Rack::Adapter::Rack3 do
+	include Sus::Fixtures::Console::CapturedLogger
+	
 	let(:app) {->(env) {[200, {}, []]}}
 	let(:adapter) {subject.new(app)}
 	
-	let(:request) {Protocol::HTTP::Request.new("https", "example.com", "GET", "/", "http/1.1", Protocol::HTTP::Headers[{"accept" => "text/html"}], Protocol::HTTP::Body::Buffered.new)}
+	let(:body) {Protocol::HTTP::Body::Buffered.new}
+	let(:request) {Protocol::HTTP::Request.new("https", "example.com", "GET", "/", "http/1.1", Protocol::HTTP::Headers[{"accept" => "text/html"}], body)}
 	let(:response) {adapter.call(request)}
+	
+	it_behaves_like Protocol::Rack::AnAdapter
 	
 	with "set-cookie headers that has multiple values" do
 		let(:app) {->(env) {[200, {"set-cookie" => ["a=b", "x=y"]}, []]}}
@@ -31,8 +37,6 @@ describe Protocol::Rack::Adapter::Rack3 do
 	end
 	
 	with "connection: close header" do
-		include DisableConsoleContext
-		
 		let(:app) {->(env) {[200, {"connection" => "close"}, []]}}
 		
 		it "removes content-length header" do

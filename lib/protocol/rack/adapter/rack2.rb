@@ -80,6 +80,20 @@ module Protocol
 					
 					status, headers, body = @app.call(env)
 					
+					if status
+						status = status.to_i
+					else
+						raise ArgumentError, "Status must be an integer!"
+					end
+					
+					unless headers
+						raise ArgumentError, "Headers must not be nil!"
+					end
+					
+					unless body.respond_to?(:each)
+						raise ArgumentError, "Body must respond to #each!"
+					end
+					
 					headers, meta = self.wrap_headers(headers)
 					
 					# Rack 2 spec does not allow only partial hijacking.

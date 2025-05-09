@@ -4,17 +4,43 @@
 # Copyright, 2022-2025, by Samuel Williams.
 # Copyright, 2025, by Francisco Mejia.
 
+require "sus/fixtures/console"
 require "protocol/rack/adapter/generic"
 require "protocol/http/request"
 
-require "disable_console_context"
-
 describe Protocol::Rack::Adapter::Generic do
+	include Sus::Fixtures::Console::CapturedLogger
+	
 	let(:app) {->(env){[200, {}, []]}}
 	let(:adapter) {subject.wrap(app)}
 	
 	it "can instantiate an adapter" do
 		expect(adapter).not.to be_nil
+	end
+	
+	with "#unwrap_headers" do
+		with "cookie header" do
+			let(:fields) {[["cookie", "a=b"], ["cookie", "x=y"]]}
+			let(:env) {Hash.new}
+			
+			it "should merge duplicate headers" do
+				adapter.unwrap_headers(fields, env)
+				
+				# I'm not convinced this is standard behaviour:
+				expect(env).to be == {"HTTP_COOKIE" => "a=b;x=y"}
+			end
+		end
+		
+		with "multiple accept headers" do
+			let(:fields) {[["accept", "text/html"], ["accept", "application/json"]]}
+			let(:env) {Hash.new}
+			
+			it "should merge duplicate headers" do
+				adapter.unwrap_headers(fields, env)
+				
+				expect(env).to be == {"HTTP_ACCEPT" => "text/html,application/json"}
+			end
+		end
 	end
 	
 	with "an exception" do
@@ -50,8 +76,6 @@ describe Protocol::Rack::Adapter::Generic do
 	end
 	
 	with "a app that returns nil" do
-		include DisableConsoleContext
-		
 		let(:app) {->(env){nil}}
 		let(:request) {Protocol::HTTP::Request["GET", "/", {"content-type" => "text/plain"}, nil]}
 		
@@ -59,6 +83,66 @@ describe Protocol::Rack::Adapter::Generic do
 			response = adapter.call(request)
 			expect(response.status).to be == 500
 			expect(response.read).to be == "ArgumentError: Status must be an integer!"
+		end
+	end
+	
+	with "nil headers" do
+		let(:app) {->(env){[200, nil, []]}}
+		let(:request) {Protocol::HTTP::Request["GET", "/", {}, nil]}
+		
+		it "returns a failure response for nil headers" do
+			response = adapter.call(request)
+			expect(response.status).to be == 500
+			expect(response.read).to be == "ArgumentError: Headers must not be nil!"
+		end
+	end
+
+	with "protocol upgrade" do
+		let(:app) {->(env){[200, {}, []]}}
+		let(:request) {Protocol::HTTP::Request["GET", "/", {"upgrade" => "websocket"}, nil]}
+		
+		it "handles protocol upgrade with rack.protocol" do
+			env = {"rack.protocol" => "websocket"}
+			headers = {}
+			response = Protocol::HTTP::Response[200, {}, []]
+			response.protocol = "websocket"
+			
+			adapter.class.extract_protocol(env, response, headers)
+			expect(headers["rack.protocol"]).to be == "websocket"
+		end
+		
+		it "handles protocol upgrade with HTTP_UPGRADE" do
+			env = {Protocol::Rack::CGI::HTTP_UPGRADE => "websocket"}
+			headers = {}
+			response = Protocol::HTTP::Response[200, {}, []]
+			response.protocol = "websocket"
+			
+			adapter.class.extract_protocol(env, response, headers)
+			expect(headers["upgrade"]).to be == "websocket"
+			expect(headers["connection"]).to be == "upgrade"
+		end
+	end
+
+	with "response callbacks" do
+		let(:callback_called) {false}
+		let(:callback) {->(env, status, headers, exception) { @callback_called = true }}
+		let(:app) do
+			->(env) {
+				env[Protocol::Rack::RACK_RESPONSE_FINISHED] = [callback]
+				raise StandardError.new("Test error")
+			}
+		end
+		let(:request) {Protocol::HTTP::Request["GET", "/", {}, nil]}
+		
+		it "calls response callbacks on failure" do
+			@callback_called = false
+			
+			response = adapter.call(request)
+			
+			expect(@callback_called).to be == true
+			
+			expect(response.status).to be == 500
+			expect(response.read).to be == "StandardError: Test error"
 		end
 	end
 end
