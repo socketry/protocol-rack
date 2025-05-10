@@ -60,6 +60,15 @@ describe Protocol::Rack::Adapter::Rack31 do
 			end
 		end
 	end
+
+	with "a non-empty body" do
+		let(:body) {Protocol::HTTP::Body::Buffered.wrap("Hello World!")}
+		
+		it "should return an empty body" do
+			env = adapter.make_environment(request)
+			expect(env).to have_keys(Protocol::Rack::RACK_INPUT)
+		end
+	end
 	
 	with "a request that has response finished callbacks" do
 		let(:callback) {->(env, status, headers, error){}}
