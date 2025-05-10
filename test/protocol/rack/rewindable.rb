@@ -9,15 +9,14 @@ require "protocol/http/body/rewindable"
 describe Protocol::Rack::Rewindable do
 	let(:headers) {Protocol::HTTP::Headers.new}
 	let(:body) {Protocol::HTTP::Body::Readable.new}
-	let(:app) {
-		app = Object.new
-		mock(app) do |mock|
-			mock.replace(:call) do |request|
-				Protocol::HTTP::Response[200, {}, []]
-			end
+	
+	let(:app) do
+		proc do |request|
+			Protocol::HTTP::Response[200, {}, []]
 		end
-		app
-	}
+	end
+	
+	let(:rewindable) {subject.new(app)}
 	
 	with "non-POST requests" do
 		it "should rewind if it has a buffered media type" do
@@ -26,7 +25,6 @@ describe Protocol::Rack::Rewindable do
 			)
 			request.headers["content-type"] = "application/x-www-form-urlencoded"
 			
-			rewindable = subject.new(nil)
 			expect(rewindable.needs_rewind?(request)).to be == true
 		end
 	end
@@ -37,7 +35,6 @@ describe Protocol::Rack::Rewindable do
 				"https", "example.com", "POST", "/", "HTTP/1.1", headers, body
 			)
 			
-			rewindable = subject.new(nil)
 			expect(rewindable.needs_rewind?(request)).to be == true
 		end
 		
@@ -47,7 +44,6 @@ describe Protocol::Rack::Rewindable do
 			)
 			request.headers["content-type"] = "application/x-www-form-urlencoded"
 			
-			rewindable = subject.new(nil)
 			expect(rewindable.needs_rewind?(request)).to be == true
 		end
 		
@@ -57,7 +53,6 @@ describe Protocol::Rack::Rewindable do
 			)
 			request.headers["content-type"] = "multipart/form-data; boundary=----WebKitFormBoundary"
 			
-			rewindable = subject.new(nil)
 			expect(rewindable.needs_rewind?(request)).to be == true
 		end
 		
@@ -67,7 +62,6 @@ describe Protocol::Rack::Rewindable do
 			)
 			request.headers["content-type"] = "multipart/related; boundary=----WebKitFormBoundary"
 			
-			rewindable = subject.new(nil)
 			expect(rewindable.needs_rewind?(request)).to be == true
 		end
 		
@@ -77,7 +71,6 @@ describe Protocol::Rack::Rewindable do
 			)
 			request.headers["content-type"] = "multipart/mixed; boundary=----WebKitFormBoundary"
 			
-			rewindable = subject.new(nil)
 			expect(rewindable.needs_rewind?(request)).to be == true
 		end
 		
@@ -87,7 +80,6 @@ describe Protocol::Rack::Rewindable do
 			)
 			request.headers["content-type"] = "application/json"
 			
-			rewindable = subject.new(nil)
 			expect(rewindable.needs_rewind?(request)).to be == false
 		end
 	end
@@ -99,7 +91,6 @@ describe Protocol::Rack::Rewindable do
 			)
 			request.headers["content-type"] = "application/x-www-form-urlencoded"
 			
-			rewindable = subject.new(app)
 			rewindable.call(request)
 			
 			expect(request.body).to be_a(Protocol::HTTP::Body::Rewindable)
@@ -112,7 +103,6 @@ describe Protocol::Rack::Rewindable do
 			)
 			request.headers["content-type"] = "application/json"
 			
-			rewindable = subject.new(app)
 			rewindable.call(request)
 			
 			expect(request.body).to be == body
