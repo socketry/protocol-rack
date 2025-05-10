@@ -4,7 +4,6 @@
 # Copyright, 2025, by Samuel Williams.
 
 require "sus/fixtures/console"
-require "rack/mock_request"
 
 require "protocol/http/request"
 require "protocol/rack/adapter/rack31"

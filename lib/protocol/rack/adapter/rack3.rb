@@ -130,14 +130,6 @@ module Protocol
 						# Force streaming response:
 						body = body.method(:call)
 					end
-
-					headers.transform_values! do |value|
-						if value.is_a?(Array) and value.size == 1
-							value.first
-						else
-							value
-						end
-					end
 					
 					[response.status, headers, body]
 				end

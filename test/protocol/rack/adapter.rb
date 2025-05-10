@@ -55,20 +55,22 @@ describe Protocol::Rack::Adapter do
 			response = Protocol::HTTP::Response[200, headers: {"x-custom" => "123"}, body: ["Hello World!"]]
 			status, headers, body = subject.make_response(env, response)
 
-			expect(headers["x-custom"]).to be == "123"
+			x_custom = headers["x-custom"]
+
+			expect(x_custom).to (be == "123").or(be == ["123"])
 		end
 
 		it "can wrap multi-value headers" do
-			response = Protocol::HTTP::Response[200, headers: {"set-cookie" => ["a=b", "x=y"]}, body: ["Hello World!"]]
+			response = Protocol::HTTP::Response[200, headers: [["x-custom", "a=b"], ["x-custom", "x=y"]], body: ["Hello World!"]]
 			
 			status, headers, body = subject.make_response(env, response)
 			
-			set_cookie = headers["set-cookie"]
+			x_custom = headers["x-custom"]
 
 			if subject::VERSION < "3"
-				expect(set_cookie).to be == "a=b\nx=y"
+				expect(x_custom).to be == "a=b\nx=y"
 			else
-				expect(set_cookie).to be == ["a=b", "x=y"]
+				expect(x_custom).to be == ["a=b", "x=y"]
 			end
 		end
 	end
