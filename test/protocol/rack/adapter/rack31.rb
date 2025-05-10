@@ -18,6 +18,14 @@ describe Protocol::Rack::Adapter::Rack31 do
 	let(:request) {Protocol::HTTP::Request.new("https", "example.com", "GET", "/", "http/1.1", Protocol::HTTP::Headers[{"accept" => "text/html"}], body)}
 	let(:response) {adapter.call(request)}
 	
+	with "rack.protocol response header" do
+		let(:app) {->(env) {[200, {"rack.protocol" => "websocket"}, []]}}
+		
+		it "can make a response with the specified protocol" do
+			expect(response.protocol).to be == "websocket"
+		end
+	end
+
 	with "set-cookie headers that has multiple values" do
 		let(:app) {->(env) {[200, {"set-cookie" => ["a=b", "x=y"]}, []]}}
 		
