@@ -50,6 +50,27 @@ describe Protocol::Rack::Adapter do
 				expect(body).to be(:respond_to?, :call)
 			end
 		end
+
+		it "can wrap headers" do
+			response = Protocol::HTTP::Response[200, headers: {"x-custom" => "123"}, body: ["Hello World!"]]
+			status, headers, body = subject.make_response(env, response)
+
+			expect(headers["x-custom"]).to be == "123"
+		end
+
+		it "can wrap multi-value headers" do
+			response = Protocol::HTTP::Response[200, headers: {"set-cookie" => ["a=b", "x=y"]}, body: ["Hello World!"]]
+			
+			status, headers, body = subject.make_response(env, response)
+			
+			set_cookie = headers["set-cookie"]
+
+			if subject::VERSION < "3"
+				expect(set_cookie).to be == "a=b\nx=y"
+			else
+				expect(set_cookie).to be == ["a=b", "x=y"]
+			end
+		end
 	end
 
 	AnApplication = Sus::Shared("an application") do
