@@ -46,7 +46,7 @@ module Protocol
 			# Checks both `rack.protocol` and `HTTP_UPGRADE` headers.
 			# 
 			# @parameter env [Hash] The Rack environment hash.
-			# @returns [Array<String> | Nil] The list of protocols or nil if none specified.
+			# @returns [Array(String) | Nil] The list of protocols or `nil` if none specified.
 			def self.protocol(env)
 				if protocols = env["rack.protocol"]
 					return Array(protocols)
