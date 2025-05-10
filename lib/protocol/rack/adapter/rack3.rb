@@ -11,15 +11,42 @@ require_relative "generic"
 module Protocol
 	module Rack
 		module Adapter
+			# The Rack 3 adapter provides compatibility with Rack 3.x applications.
+			# It handles the conversion between {Protocol::HTTP} and Rack 3 environments.
+			# Unlike Rack 2, this adapter supports streaming responses and has a simpler environment setup.
 			class Rack3 < Generic
+				# Creates a new adapter instance for the given Rack application.
+				# Unlike Rack 2, this adapter doesn't require a {Rewindable} wrapper.
+				# 
+				# @parameter app [Interface(:call)] A Rack application.
+				# @returns [Rack3] A new adapter instance.
 				def self.wrap(app)
 					self.new(app)
 				end
 				
+				# Parses a Rackup file and returns the application.
+				# Uses the Rack 3.x interface for parsing Rackup files.
+				# 
+				# @parameter path [String] The path to the Rackup file.
+				# @returns [Interface(:call)] The Rack application.
 				def self.parse_file(...)
 					::Rack::Builder.parse_file(...)
 				end
 				
+				# Whether this adapter supports streaming responses.
+				# Rack 3 supports streaming responses by default.
+				# 
+				# @returns [Boolean] Always true for the Rack 3 adapter.
+				def self.streaming?
+					true
+				end
+				
+				# Create a Rack 3 environment hash for the request.
+				# Sets up all required Rack 3 environment variables and processes the request.
+				# Unlike Rack 2, this adapter doesn't set Rack version or threading flags.
+				# 
+				# @parameter request [Protocol::HTTP::Request] The incoming request.
+				# @returns [Hash] The Rack 3 environment hash.
 				def make_environment(request)
 					request_path, query_string = request.path.split("?", 2)
 					server_name, server_port = (request.authority || "").split(":", 2)
@@ -34,13 +61,13 @@ module Protocol
 						# The response finished callbacks:
 						RACK_RESPONSE_FINISHED => [],
 						
-						# The HTTP request method, such as “GET” or “POST”. This cannot ever be an empty string, and so is always required.
+						# The HTTP request method, such as "GET" or "POST". This cannot ever be an empty string, and so is always required.
 						CGI::REQUEST_METHOD => request.method,
 						
-						# The initial portion of the request URL's “path” that corresponds to the application object, so that the application knows its virtual “location”. This may be an empty string, if the application corresponds to the “root” of the server.
+						# The initial portion of the request URL's "path" that corresponds to the application object, so that the application knows its virtual "location". This may be an empty string, if the application corresponds to the "root" of the server.
 						CGI::SCRIPT_NAME => "",
 						
-						# The remainder of the request URL's “path”, designating the virtual “location” of the request's target within the application. This may be an empty string, if the request URL targets the application root and does not have a trailing slash. This value may be percent-encoded when originating from a URL.
+						# The remainder of the request URL's "path", designating the virtual "location" of the request's target within the application. This may be an empty string, if the request URL targets the application root and does not have a trailing slash. This value may be percent-encoded when originating from a URL.
 						CGI::PATH_INFO => request_path,
 						CGI::REQUEST_PATH => request_path,
 						CGI::REQUEST_URI => request.path,
@@ -57,7 +84,7 @@ module Protocol
 						# I'm not sure what sane defaults should be here:
 						CGI::SERVER_NAME => server_name,
 					}
-
+					
 					# SERVER_PORT is optional but must not be set if it is not present.
 					if server_port
 						env[CGI::SERVER_PORT] = server_port
@@ -68,8 +95,11 @@ module Protocol
 					return env
 				end
 				
-				# Process the rack response headers into into a {Protocol::HTTP::Headers} instance, along with any extra `rack.` metadata.
-				# @returns [Tuple(Protocol::HTTP::Headers, Hash)]
+				# Process the rack response headers into a {Protocol::HTTP::Headers} instance, along with any extra `rack.` metadata.
+				# Unlike Rack 2, this adapter handles array values directly without splitting on newlines.
+				# 
+				# @parameter fields [Hash] The raw response headers.
+				# @returns [Tuple(Protocol::HTTP::Headers, Hash)] The processed headers and metadata.
 				def wrap_headers(fields)
 					headers = ::Protocol::HTTP::Headers.new
 					meta = {}
@@ -91,6 +121,13 @@ module Protocol
 					return headers, meta
 				end
 				
+				# Convert a {Protocol::HTTP::Response} into a Rack 3 response tuple.
+				# Handles protocol upgrades and streaming responses.
+				# Unlike Rack 2, this adapter forces streaming responses by converting the body to a callable.
+				# 
+				# @parameter env [Hash] The rack environment.
+				# @parameter response [Protocol::HTTP::Response] The HTTP response.
+				# @returns [Tuple(Integer, Hash, Object)] The Rack 3 response tuple [status, headers, body].
 				def self.make_response(env, response)
 					# These interfaces should be largely compatible:
 					headers = response.headers.to_h

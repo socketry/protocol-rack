@@ -1,14 +1,14 @@
 # frozen_string_literal: true
 
 # Released under the MIT License.
-# Copyright, 2022-2025, by Samuel Williams.
+# Copyright, 2025, by Samuel Williams.
 
 require "sus/fixtures/console"
 
 require "protocol/http/request"
-require "protocol/rack/adapter/rack3"
+require "protocol/rack/adapter/rack31"
 
-describe Protocol::Rack::Adapter::Rack3 do
+describe Protocol::Rack::Adapter::Rack31 do
 	include Sus::Fixtures::Console::CapturedLogger
 	
 	let(:app) {->(env) {[200, {}, []]}}

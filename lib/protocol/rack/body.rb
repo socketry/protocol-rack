@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 # Released under the MIT License.
-# Copyright, 2022-2024, by Samuel Williams.
+# Copyright, 2022-2025, by Samuel Williams.
 
 require_relative "body/streaming"
 require_relative "body/enumerable"
@@ -10,13 +10,34 @@ require "protocol/http/body/completable"
 
 module Protocol
 	module Rack
+		# The Body module provides functionality for handling Rack response bodies.
+		# It includes methods for wrapping different types of response bodies and handling completion callbacks.
 		module Body
+			# The `content-length` header key.
 			CONTENT_LENGTH = "content-length"
 			
+			# Check if the given status code indicates no content should be returned.
+			# Status codes 204 (No Content), 205 (Reset Content), and 304 (Not Modified) should not include a response body.
+			# 
+			# @parameter status [Integer] The HTTP status code.
+			# @returns [Boolean] True if the status code indicates no content.
 			def self.no_content?(status)
 				status == 204 or status == 205 or status == 304
 			end
 			
+			# Wrap a Rack response body into a {Protocol::HTTP::Body} instance.
+			# Handles different types of response bodies:
+			# - {Protocol::HTTP::Body::Readable} instances are returned as-is.
+			# - Bodies that respond to `to_path` are wrapped in {Protocol::HTTP::Body::File}.
+			# - Enumerable bodies are wrapped in {Body::Enumerable}.
+			# - Other bodies are wrapped in {Body::Streaming}.
+			# 
+			# @parameter env [Hash] The Rack environment.
+			# @parameter status [Integer] The HTTP status code.
+			# @parameter headers [Hash] The response headers.
+			# @parameter body [Object] The response body to wrap.
+			# @parameter input [Object] Optional input for streaming bodies.
+			# @returns [Protocol::HTTP::Body] The wrapped response body.
 			def self.wrap(env, status, headers, body, input = nil)
 				# In no circumstance do we want this header propagating out:
 				if length = headers.delete(CONTENT_LENGTH)
@@ -66,6 +87,14 @@ module Protocol
 				return body
 			end
 			
+			# Create a completion callback for response finished handlers.
+			# The callback is called with any error that occurred during response processing.
+			# 
+			# @parameter response_finished [Array] Array of response finished callbacks.
+			# @parameter env [Hash] The Rack environment.
+			# @parameter status [Integer] The HTTP status code.
+			# @parameter headers [Hash] The response headers.
+			# @returns [Proc] A callback that calls all response finished handlers.
 			def self.completion_callback(response_finished, env, status, headers)
 				proc do |error|
 					response_finished.each do |callback|
