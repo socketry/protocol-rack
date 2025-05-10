@@ -33,14 +33,6 @@ module Protocol
 					::Rack::Builder.parse_file(...)
 				end
 				
-				# Whether this adapter supports streaming responses.
-				# Rack 3 supports streaming responses by default.
-				# 
-				# @returns [Boolean] Always true for the Rack 3 adapter.
-				def self.streaming?
-					true
-				end
-				
 				# Create a Rack 3 environment hash for the request.
 				# Sets up all required Rack 3 environment variables and processes the request.
 				# Unlike Rack 2, this adapter doesn't set Rack version or threading flags.
