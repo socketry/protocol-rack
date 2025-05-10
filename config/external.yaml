@@ -3,4 +3,4 @@ falcon:
   command: bundle exec bake test
 async-websocket:
   url: https://github.com/socketry/async-websocket
-  command: bundle exec bake test
+  command: bundle exec sus
