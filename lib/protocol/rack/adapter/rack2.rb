@@ -165,7 +165,11 @@ module Protocol
 					end
 					
 					headers.transform_values! do |value|
-						value.is_a?(Array) ? value.join("\n") : value
+						if value.is_a?(Array)
+							value.join("\n")
+						else
+							value
+						end
 					end
 					
 					[response.status, headers, body]

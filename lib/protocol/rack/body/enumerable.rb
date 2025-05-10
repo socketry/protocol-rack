@@ -87,8 +87,10 @@ module Protocol
 				# 	@parameter chunk [String] A chunk of the response body.
 				def each(&block)
 					@body.each(&block)
+				rescue => error
+					raise
 				ensure
-					self.close($!)
+					self.close(error)
 				end
 				
 				# Check if the body is a streaming response.
@@ -105,8 +107,10 @@ module Protocol
 				# @parameter stream [Object] The stream to write the body to.
 				def call(stream)
 					@body.call(stream)
+				rescue => error
+					raise
 				ensure
-					self.close($!)
+					self.close(error)
 				end
 
 				# Read the next chunk from the response body.

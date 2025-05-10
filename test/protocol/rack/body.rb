@@ -77,5 +77,38 @@ describe Protocol::Rack::Body do
 				expect(result).not.to be_nil
 			end
 		end
+
+		with "response finished callback" do
+			it "returns a body that calls the callback when closed" do
+				called = false
+				
+				callback = proc do
+					called = true
+				end
+
+				env[Protocol::Rack::RACK_RESPONSE_FINISHED] = [callback]
+				
+				body = subject.wrap(env, 200, headers, ["body"], callback)
+
+				expect(called).to be == false
+				body.close
+				expect(called).to be == true
+			end
+
+			it "calls the callback when the body is empty" do
+				called = false
+				
+				callback = proc do
+					called = true
+				end
+
+				env[Protocol::Rack::RACK_RESPONSE_FINISHED] = [callback]
+				
+				body = subject.wrap(env, 204, headers, [], callback)
+
+				expect(body).to be_nil
+				expect(called).to be == true
+			end
+		end
 	end
 end

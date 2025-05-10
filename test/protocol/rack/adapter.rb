@@ -19,6 +19,62 @@ describe Protocol::Rack::Adapter do
 		expect(subject.parse_file(rackup_path)).to be_a(Proc)
 	end
 	
+	with ".make_response" do
+		let(:env) {Rack::MockRequest.env_for("/")}
+		
+		it "can make a response" do
+			response = Protocol::HTTP::Response[200, headers: {}, body: ["Hello World!"]]
+			status, headers, body = subject.make_response(env, response)
+
+			expect(status).to be == 200
+			expect(headers).to be == {}
+			expect(body.join).to be == "Hello World!"
+		end
+
+		it "can make a streaming response" do
+			stream_proc = lambda do |stream|
+				stream.write("Hello Streaming World")
+				stream.close
+			end
+
+			body = Protocol::Rack::Body::Streaming.new(stream_proc)
+			
+			response = Protocol::HTTP::Response[200, headers: {}, body: body]
+			status, headers, body = subject.make_response(env, response)
+
+			expect(status).to be == 200
+			if headers.include?(Protocol::Rack::RACK_HIJACK)
+				hijack_proc = headers[Protocol::Rack::RACK_HIJACK]
+				expect(hijack_proc).to be(:respond_to?, :call)
+			else
+				expect(body).to be(:respond_to?, :call)
+			end
+		end
+
+		it "can wrap headers" do
+			response = Protocol::HTTP::Response[200, headers: {"x-custom" => "123"}, body: ["Hello World!"]]
+			status, headers, body = subject.make_response(env, response)
+
+			x_custom = headers["x-custom"]
+
+			expect(x_custom).to (be == "123").or(be == ["123"])
+		end
+
+		it "can wrap multi-value headers" do
+			response = Protocol::HTTP::Response[200, headers: [["x-custom", "a=b"], ["x-custom", "x=y"]], body: ["Hello World!"]]
+			
+			status, headers, body = subject.make_response(env, response)
+			
+			x_custom = headers["x-custom"]
+
+			if subject::VERSION < "3"
+				expect(x_custom).to be == "a=b\nx=y"
+			else
+				expect(x_custom).to be == ["a=b", "x=y"]
+			end
+		end
+	end
+
 	AnApplication = Sus::Shared("an application") do
 		include Protocol::Rack::ServerContext
 		

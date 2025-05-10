@@ -21,4 +21,42 @@ describe Protocol::Rack::Body::Enumerable do
 			expect(body).not.to be(:empty?)
 		end
 	end
+
+	with "#each" do
+		let(:bad_enumerable) do
+			Enumerator.new do |yielder|
+				raise "Bad Enumerable"
+			end
+		end
+
+		let(:body) {subject.new(bad_enumerable, 1)}
+
+		it "closes the body when the block raises an error" do
+			expect(body).to receive(:close)
+
+			expect do
+				body.each do |chunk|
+					# Ignore...
+				end
+			end.to raise_exception(RuntimeError, message: be =~ /Bad Enumerable/)
+		end
+	end
+
+	with "#call" do
+		let(:bad_callable) do
+			proc do |stream|
+				raise "Bad Callable"
+			end
+		end
+
+		let(:body) {subject.new(bad_callable, 1)}
+
+		it "streams the body" do
+			expect(body).to receive(:close)
+
+			expect do
+				body.call(nil)
+			end.to raise_exception(RuntimeError, message: be =~ /Bad Callable/)
+		end
+	end
 end

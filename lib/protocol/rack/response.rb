@@ -5,10 +5,10 @@
 
 require_relative "body"
 require_relative "constants"
-# require 'time'
 
 require "protocol/http/response"
 require "protocol/http/headers"
+require "protocol/http/body/head"
 
 module Protocol
 	module Rack
