@@ -37,8 +37,9 @@ module Protocol
 			# @parameter headers [Hash] The response headers.
 			# @parameter body [Object] The response body to wrap.
 			# @parameter input [Object] Optional input for streaming bodies.
+			# @parameter head [Boolean] Indicates if this is a HEAD request, which should not have a body.
 			# @returns [Protocol::HTTP::Body] The wrapped response body.
-			def self.wrap(env, status, headers, body, input = nil)
+			def self.wrap(env, status, headers, body, input = nil, head = false)
 				# In no circumstance do we want this header propagating out:
 				if length = headers.delete(CONTENT_LENGTH)
 					# We don't really trust the user to provide the right length to the transport.
@@ -81,6 +82,14 @@ module Protocol
 						body = ::Protocol::HTTP::Body::Completable.new(body, completion_callback(response_finished, env, status, headers))
 					else
 						completion_callback(response_finished, env, status, headers).call(nil)
+					end
+				end
+				
+				if head
+					if body
+						body = ::Protocol::HTTP::Body::Head.for(body)
+					elsif length
+						body = ::Protocol::HTTP::Body::Head.new(length)
 					end
 				end
 				

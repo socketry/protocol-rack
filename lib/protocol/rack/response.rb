@@ -50,12 +50,7 @@ module Protocol
 					body = hijack_body
 				end
 
-				body = Body.wrap(env, status, headers, body, request&.body)
-
-				if request&.head?
-					# I thought about doing this in Output.wrap, but decided the semantics are too tricky. Specifically, the various ways a rack response body can be wrapped, and the need to invoke #close at the right point.
-					body = ::Protocol::HTTP::Body::Head.for(body)
-				end
+				body = Body.wrap(env, status, headers, body, request&.body, request&.head?)
 				
 				protocol = meta[RACK_PROTOCOL]
 				
