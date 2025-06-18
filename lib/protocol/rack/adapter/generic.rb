@@ -119,7 +119,7 @@ module Protocol
 					
 					# HTTP/2 prefers `:authority` over `host`, so we do this for backwards compatibility.
 					env[CGI::HTTP_HOST] ||= request.authority
-								
+					
 					if peer = request.peer
 						env[CGI::REMOTE_ADDR] = peer.ip_address
 					end
