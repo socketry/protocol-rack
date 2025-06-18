@@ -1,5 +1,9 @@
 # Releases
 
+## Unreleased
+
+  - Handling of `HEAD` requests is now more robust.
+
 ## v0.13.0
 
   - 100% test and documentation coverage.

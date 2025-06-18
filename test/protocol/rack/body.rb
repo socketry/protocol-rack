@@ -18,14 +18,60 @@ describe Protocol::Rack::Body do
 	end
 	
 	with "#wrap" do
-		let(:env) { {} }
-		let(:headers) { {} }
+		let(:env) {Hash.new}
+		let(:headers) {Hash.new}
 		
 		it "handles nil body" do
 			expect(Console).to receive(:warn).and_return(nil)
 			
 			result = subject.wrap(env, 200, headers, nil)
 			expect(result).to be_nil
+		end
+		
+		with "head request" do
+			it "wraps response with content-length and empty body" do
+				headers["content-length"] = "123"
+				
+				result = subject.wrap(env, 200, headers, [], nil, true)
+				
+				expect(result).to be_a(Protocol::HTTP::Body::Head)
+				expect(result.length).to be == 123
+			end
+			
+			it "wraps response with no content-length and empty body" do
+				result = subject.wrap(env, 200, headers, [], nil, true)
+				
+				expect(result).to be_a(Protocol::HTTP::Body::Head)
+				expect(result.length).to be == 0
+			end
+			
+			it "wraps response with content-length and nil body" do
+				headers["content-length"] = "123"
+				
+				expect(Console).to receive(:warn).and_return(nil)
+				result = subject.wrap(env, 200, headers, nil, nil, true)
+				
+				expect(result).to be_a(Protocol::HTTP::Body::Head)
+				expect(result.length).to be == 123
+			end
+			
+			it "wraps response with no content-length and nil body" do
+				expect(Console).to receive(:warn).and_return(nil)
+				
+				result = subject.wrap(env, 200, headers, nil, nil, true)
+				
+				expect(result).to be_nil
+			end
+			
+			it "wraps response with content-length and body" do
+				# We trust the appliation to provide the correct content-length, but this is usually validated at the transport layer.
+				headers["content-length"] = "123"
+				
+				result = subject.wrap(env, 200, headers, ["body"], nil, true)
+				
+				expect(result).to be_a(Protocol::HTTP::Body::Head)
+				expect(result.length).to be == 123
+			end
 		end
 		
 		with "non-empty body and no-content status" do
