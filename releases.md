@@ -1,6 +1,6 @@
 # Releases
 
-## Unreleased
+## v0.14.0
 
   - Handling of `HEAD` requests is now more robust.
 

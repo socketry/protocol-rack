@@ -67,6 +67,10 @@ run proc{|env|
 
 Please see the [project releases](https://socketry.github.io/protocol-rack/releases/index) for all releases.
 
+### v0.14.0
+
+  - Handling of `HEAD` requests is now more robust.
+
 ### v0.13.0
 
   - 100% test and documentation coverage.
