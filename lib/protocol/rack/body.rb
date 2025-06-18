@@ -6,7 +6,9 @@
 require_relative "body/streaming"
 require_relative "body/enumerable"
 require_relative "constants"
+
 require "protocol/http/body/completable"
+require "protocol/http/body/head"
 
 module Protocol
 	module Rack
@@ -85,12 +87,17 @@ module Protocol
 					end
 				end
 				
+				# There are two main situations we need to handle:
+				# 1. The application has the `Rack::Head` middleware in the stack, which means we should not return a body, and the application is also responsible for setting the content-length header. `Rack::Head` will result in an empty enumerable body.
+				# 2. The application does not have `Rack::Head`, in which case it will return a body and we need to extract the length.
+				# In both cases, we need to ensure that the body is wrapped correctly. If there is no body and we don't know the length, we also just return `nil`.
 				if head
 					if body
 						body = ::Protocol::HTTP::Body::Head.for(body)
 					elsif length
 						body = ::Protocol::HTTP::Body::Head.new(length)
 					end
+					# Otherwise, body is `nil` and we don't know the length either.
 				end
 				
 				return body
