@@ -1,6 +1,6 @@
 # Releases
 
-## Unreleased
+## v0.15.0
 
   - Use `IO::Stream::Readable` for the input body, which is a better tested and more robust interface.
 

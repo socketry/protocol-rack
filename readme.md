@@ -67,6 +67,10 @@ run proc{|env|
 
 Please see the [project releases](https://socketry.github.io/protocol-rack/releases/index) for all releases.
 
+### v0.15.0
+
+  - Use `IO::Stream::Readable` for the input body, which is a better tested and more robust interface.
+
 ### v0.14.0
 
   - Handling of `HEAD` requests is now more robust.
