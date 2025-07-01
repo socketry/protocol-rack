@@ -1,5 +1,9 @@
 # Releases
 
+## Unreleased
+
+  - Use `IO::Stream::Readable` for the input body, which is a better tested and more robust interface.
+
 ## v0.14.0
 
   - Handling of `HEAD` requests is now more robust.

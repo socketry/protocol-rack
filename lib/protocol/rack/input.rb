@@ -4,7 +4,7 @@
 # Copyright, 2022-2025, by Samuel Williams.
 # Copyright, 2023, by Genki Takiuchi.
 
-require "protocol/http/body/stream"
+require "io/stream/readable"
 
 module Protocol
 	module Rack
@@ -14,21 +14,20 @@ module Protocol
 		#
 		# This implementation is not always rewindable, to avoid buffering the input when handling large uploads. See {Rewindable} for more details.
 		class Input
+			include IO::Stream::Readable
+			
 			# Initialize the input wrapper.
 			# @parameter body [Protocol::HTTP::Body::Readable]
-			def initialize(body)
+			def initialize(body, ...)
 				@body = body
 				@closed = false
 				
-				# Will hold remaining data in `#read`.
-				@buffer = nil
+				super(...)
 			end
 			
 			# The input body.
 			# @attribute [Protocol::HTTP::Body::Readable]
 			attr :body
-			
-			include Protocol::HTTP::Body::Stream::Reader
 			
 			# Enumerate chunks of the request body.
 			# @yields {|chunk| ...}
@@ -65,7 +64,6 @@ module Protocol
 					# If the body is not rewindable, this will fail.
 					@body.rewind
 					
-					@buffer = nil
 					@finished = false
 					@closed = false
 					
@@ -87,7 +85,11 @@ module Protocol
 			
 			private
 			
-			def read_next
+			def flush
+				# No-op.
+			end
+			
+			def sysread(size, buffer = nil)
 				if @body
 					# User's may forget to call #close...
 					if chunk = @body.read
@@ -98,7 +100,15 @@ module Protocol
 							@closed = true
 						end
 						
-						return chunk
+						if buffer
+							# If a buffer is provided, we copy the chunk into it:
+							buffer.replace(chunk)
+						else
+							# Otherwise we return the chunk directly:
+							buffer = chunk
+						end
+						
+						return buffer
 					else
 						unless @closed
 							# So if we are at the end of the stream, we close it automatically:
