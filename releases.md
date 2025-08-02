@@ -1,6 +1,6 @@
 # Releases
 
-## Unreleased
+## v0.16.0
 
   - Hijacked IO is no longer duped, as it's not retained by the original connection, and `SSLSocket` does not support duping.
 

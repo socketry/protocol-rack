@@ -67,6 +67,10 @@ run proc{|env|
 
 Please see the [project releases](https://socketry.github.io/protocol-rack/releases/index) for all releases.
 
+### v0.16.0
+
+  - Hijacked IO is no longer duped, as it's not retained by the original connection, and `SSLSocket` does not support duping.
+
 ### v0.15.0
 
   - Use `IO::Stream::Readable` for the input body, which is a better tested and more robust interface.
