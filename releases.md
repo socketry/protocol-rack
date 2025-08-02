@@ -1,5 +1,9 @@
 # Releases
 
+## Unreleased
+
+  - Hijacked IO is no longer duped, as it's not retained by the original connection, and `SSLSocket` does not support duping.
+
 ## v0.15.0
 
   - Use `IO::Stream::Readable` for the input body, which is a better tested and more robust interface.
