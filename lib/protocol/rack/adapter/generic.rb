@@ -114,7 +114,7 @@ module Protocol
 					
 					if request.respond_to?(:hijack?) and request.hijack?
 						env[RACK_IS_HIJACK] = true
-						env[RACK_HIJACK] = proc{request.hijack!.io.dup}
+						env[RACK_HIJACK] = proc{request.hijack!.io}
 					end
 					
 					# HTTP/2 prefers `:authority` over `host`, so we do this for backwards compatibility.
