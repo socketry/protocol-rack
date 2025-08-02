@@ -44,7 +44,7 @@ module Protocol
 						RACK_INPUT => Input.new(request.body),
 						RACK_ERRORS => $stderr,
 						RACK_LOGGER => self.logger,
-
+						
 						# The HTTP request method, such as "GET" or "POST". This cannot ever be an empty string, and so is always required.
 						CGI::REQUEST_METHOD => request.method,
 						
@@ -55,7 +55,7 @@ module Protocol
 						CGI::PATH_INFO => request_path,
 						CGI::REQUEST_PATH => request_path,
 						CGI::REQUEST_URI => request.path,
-
+						
 						# The portion of the request URL that follows the ?, if any. May be empty, but is always required!
 						CGI::QUERY_STRING => query_string || "",
 						
@@ -68,7 +68,7 @@ module Protocol
 						# I'm not sure what sane defaults should be here:
 						CGI::SERVER_NAME => server_name,
 					}
-
+					
 					# SERVER_PORT is optional but must not be set if it is not present.
 					if server_port
 						env[CGI::SERVER_PORT] = server_port

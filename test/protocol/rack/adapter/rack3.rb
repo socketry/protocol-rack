@@ -52,7 +52,7 @@ describe Protocol::Rack::Adapter::Rack3 do
 				
 				expect(response.body).to be(:kind_of?, Protocol::HTTP::Body::File)
 			end
-		
+			
 			with "206 partial response status" do
 				let(:app) {->(env) {[200, {}, fake_file]}}
 				
@@ -74,14 +74,14 @@ describe Protocol::Rack::Adapter::Rack3 do
 			end
 		end
 	end
-
+	
 	with "#make_response" do
 		let(:env) {::Rack::MockRequest.env_for("/")}
 		let(:response) {Protocol::HTTP::Response[200, headers: {}, body: []]}
-
+		
 		it "can wrap headers" do
 			status, headers, body = subject.make_response(env, response)
-
+			
 			expect(status).to be == 200
 			expect(headers).to be == {}
 			expect(body).to be_a(Protocol::HTTP::Body::Buffered)

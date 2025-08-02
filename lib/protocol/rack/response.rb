@@ -45,11 +45,11 @@ module Protocol
 				unless ignored.empty?
 					Console.warn(self, "Ignoring hop headers!", ignored: ignored)
 				end
-
+				
 				if hijack_body = meta["rack.hijack"]
 					body = hijack_body
 				end
-
+				
 				body = Body.wrap(env, status, headers, body, request&.body, request&.head?)
 				
 				protocol = meta[RACK_PROTOCOL]

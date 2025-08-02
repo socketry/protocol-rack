@@ -14,7 +14,7 @@ describe Protocol::Rack::Adapter::Rack31 do
 	with "#call" do
 		let(:app) {->(env) {[200, {}, []]}}
 		let(:adapter) {subject.new(app)}
-
+		
 		let(:body) {Protocol::HTTP::Body::Buffered.new}
 		let(:request) {Protocol::HTTP::Request.new("https", "example.com", "GET", "/", "http/1.1", Protocol::HTTP::Headers[{"accept" => "text/html"}], body)}
 		let(:response) {adapter.call(request)}
@@ -26,7 +26,7 @@ describe Protocol::Rack::Adapter::Rack31 do
 				expect(response.protocol).to be == "websocket"
 			end
 		end
-
+		
 		with "set-cookie headers that has multiple values" do
 			let(:app) {->(env) {[200, {"set-cookie" => ["a=b", "x=y"]}, []]}}
 			
@@ -60,7 +60,7 @@ describe Protocol::Rack::Adapter::Rack31 do
 				
 				expect(response.body).to be(:kind_of?, Protocol::HTTP::Body::File)
 			end
-		
+			
 			with "206 partial response status" do
 				let(:app) {->(env) {[200, {}, fake_file]}}
 				
@@ -69,7 +69,7 @@ describe Protocol::Rack::Adapter::Rack31 do
 				end
 			end
 		end
-
+		
 		with "a non-empty body" do
 			let(:body) {Protocol::HTTP::Body::Buffered.wrap("Hello World!")}
 			

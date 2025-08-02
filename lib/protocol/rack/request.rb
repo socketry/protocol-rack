@@ -23,13 +23,13 @@ module Protocol
 			def self.[](env)
 				env["protocol.http.request"] ||= new(env)
 			end
-
+			
 			# Initialize a new Request instance from a Rack environment.
 			# 
 			# @parameter env [Hash] The Rack environment hash.
 			def initialize(env)
 				@env = env
-
+				
 				super(
 					@env["rack.url_scheme"],
 					@env["HTTP_HOST"],
@@ -41,7 +41,7 @@ module Protocol
 					self.class.protocol(@env)
 				)
 			end
-
+			
 			# Extract the protocol list from the Rack environment.
 			# Checks both `rack.protocol` and `HTTP_UPGRADE` headers.
 			# 
@@ -54,7 +54,7 @@ module Protocol
 					return protocols.split(/\s*,\s*/)
 				end
 			end
-
+			
 			# Extract HTTP headers from the Rack environment.
 			# Converts Rack's `HTTP_*` environment variables to proper HTTP headers.
 			# 
@@ -68,7 +68,7 @@ module Protocol
 						headers[key[5..-1].gsub("_", "-").downcase] = value
 					end
 				end
-
+				
 				return headers
 			end
 		end

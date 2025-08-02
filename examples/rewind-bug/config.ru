@@ -7,18 +7,18 @@ class BodyTestApp
 	def call(env)
 		# Get the request body
 		body = env["rack.input"]
-
+		
 		# First read
 		body.rewind
 		first_read = body.read
-
+		
 		# Second read
 		body.rewind
 		second_read = body.read
-
+		
 		# Response showing both reads
 		response_body = "First read: #{first_read.inspect}\n\nSecond read: #{second_read.inspect}"
-
+		
 		[200, { "Content-Type" => "text/plain" }, [response_body]]
 	end
 end

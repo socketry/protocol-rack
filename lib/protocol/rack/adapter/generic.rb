@@ -188,7 +188,7 @@ module Protocol
 						# This is the newer mechanism for protocol upgrade:
 						if env["rack.protocol"]
 							headers["rack.protocol"] = protocol
-						
+							
 						# Older mechanism for protocol upgrade:
 						elsif env[CGI::HTTP_UPGRADE]
 							headers["upgrade"] = protocol

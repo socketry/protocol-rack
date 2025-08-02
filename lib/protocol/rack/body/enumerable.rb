@@ -100,7 +100,7 @@ module Protocol
 				def stream?
 					!@body.respond_to?(:each)
 				end
-
+				
 				# Stream the response body to the given stream.
 				# The body is automatically closed after streaming.
 				# 
@@ -112,7 +112,7 @@ module Protocol
 				ensure
 					self.close(error)
 				end
-
+				
 				# Read the next chunk from the response body.
 				# Returns nil when there are no more chunks.
 				# 

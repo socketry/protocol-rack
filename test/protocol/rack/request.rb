@@ -13,9 +13,7 @@ describe Protocol::Rack::Request do
 	let(:headers) {Protocol::HTTP::Headers[{"accept" => "text/html"}]}
 	let(:body) {Protocol::HTTP::Body::Buffered.new}
 	
-	let(:request) {Protocol::HTTP::Request.new(
-		"https", "example.com", "GET", "/", "HTTP/1.1", headers, body
-	)}
+	let(:request) {Protocol::HTTP::Request.new("https", "example.com", "GET", "/", "HTTP/1.1", headers, body)}
 	
 	let(:env) {adapter.make_environment(request)}
 	
@@ -49,9 +47,7 @@ describe Protocol::Rack::Request do
 	end
 	
 	with "incoming rack env which includes rack.protocol" do
-		let(:request) {Protocol::HTTP::Request.new(
-			"https", "example.com", "GET", "/", "HTTP/1.1", headers, body, ["websocket"]
-		)}
+		let(:request) {Protocol::HTTP::Request.new("https", "example.com", "GET", "/", "HTTP/1.1", headers, body, ["websocket"])}
 		
 		it "can extract upgrade request" do
 			expect(env).to have_keys(

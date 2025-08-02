@@ -62,15 +62,15 @@ describe Protocol::Rack::Adapter::Generic do
 			expect(env).to have_keys("CONTENT_TYPE" => be == "text/plain")
 		end
 	end
-
+	
 	with "app server without SERVER_PORT" do
 		let(:request) do
 			Protocol::HTTP::Request.new("https", "example.com", "GET", "/", "http/1.1", Protocol::HTTP::Headers[{"accept" => "text/html"}], nil)
 		end
-
+		
 		it "does not include SERVER_PORT in the Rack environment" do
 			env = adapter.make_environment(request)
-						
+			
 			expect(env).not.to have_keys(Protocol::Rack::CGI::SERVER_PORT)
 		end
 	end
@@ -96,7 +96,7 @@ describe Protocol::Rack::Adapter::Generic do
 			expect(response.read).to be == "ArgumentError: Headers must not be nil!"
 		end
 	end
-
+	
 	with "protocol upgrade" do
 		let(:app) {->(env){[200, {}, []]}}
 		let(:request) {Protocol::HTTP::Request["GET", "/", {"upgrade" => "websocket"}, nil]}
@@ -122,15 +122,15 @@ describe Protocol::Rack::Adapter::Generic do
 			expect(headers["connection"]).to be == "upgrade"
 		end
 	end
-
+	
 	with "response callbacks" do
 		let(:callback_called) {false}
-		let(:callback) {->(env, status, headers, exception) { @callback_called = true }}
+		let(:callback) {->(env, status, headers, exception) {@callback_called = true}}
 		let(:app) do
-			->(env) {
+			proc do |env|
 				env[Protocol::Rack::RACK_RESPONSE_FINISHED] = [callback]
 				raise StandardError.new("Test error")
-			}
+			end
 		end
 		let(:request) {Protocol::HTTP::Request["GET", "/", {}, nil]}
 		

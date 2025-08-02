@@ -48,13 +48,13 @@ describe Protocol::Rack::Adapter::Rack2 do
 		with "body that responds to #to_path" do
 			let(:body) {Array.new}
 			let(:app) {->(env) {[200, {}, body]}}
-		
+			
 			it "should generate file body" do
 				expect(body).to receive(:to_path).and_return("/dev/null")
-							
+				
 				expect(response.body).to be_a(Protocol::HTTP::Body::File)
 			end
-		
+			
 			with "206 partial response status" do
 				let(:app) {->(env) {[200, {}, body]}}
 				
@@ -117,29 +117,29 @@ describe Protocol::Rack::Adapter::Rack2 do
 			end
 		end
 	end
-
+	
 	with "#make_response" do
 		let(:env) {::Rack::MockRequest.env_for("/")}
-
+		
 		it "can wrap response" do
 			response = Protocol::HTTP::Response[200, headers: {}, body: []]
 			status, headers, body = subject.make_response(env, response)
-
+			
 			expect(status).to be == 200
 			expect(headers).to be == {}
 			expect(body).to be_a(Protocol::HTTP::Body::Buffered)
 			expect(body).to be(:empty?)
 		end
-
-
+		
+		
 		it "can wrap streaming response" do
 			streaming_body = Protocol::Rack::Body::Streaming.new(->(stream){})
 			response = Protocol::HTTP::Response[200, headers: {}, body: streaming_body]
-
+			
 			env[Protocol::Rack::RACK_IS_HIJACK] = true
-
+			
 			status, headers, body = subject.make_response(env, response)
-
+			
 			expect(status).to be == 200
 			expect(headers).to have_keys(Protocol::Rack::RACK_HIJACK)
 			expect(body).to be == []

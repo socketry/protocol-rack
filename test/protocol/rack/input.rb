@@ -20,7 +20,7 @@ describe Protocol::Rack::Input do
 			
 			expect(input).to be(:empty?)
 		end
-
+		
 		with "#read(length, buffer)" do
 			let(:buffer) {String.new}
 			let(:expected_output) {sample_data.join}
@@ -145,7 +145,7 @@ describe Protocol::Rack::Input do
 				expect(input).not.to be(:closed?)
 			end
 		end
-
+		
 		with "#rewind" do
 			it "can rewind after reading all input" do
 				expect(input.read).to be == sample_data.join
@@ -156,7 +156,7 @@ describe Protocol::Rack::Input do
 				expect(input).not.to be(:closed?)
 				expect(input.read).to be == sample_data.join
 			end
-
+			
 			it "can rewind after reading partial input" do
 				expect(input.read(3)).to be == "The"
 				expect(input).not.to be(:closed?)
@@ -166,7 +166,7 @@ describe Protocol::Rack::Input do
 				expect(input).not.to be(:closed?)
 				expect(input.read(3)).to be == "The"
 			end
-
+			
 			it "can't rewind after explicit close" do
 				input.close
 				expect(input.rewind).to be == false

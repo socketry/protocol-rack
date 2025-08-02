@@ -32,7 +32,7 @@ describe Protocol::Rack::Response do
 			expect_console.to have_logged(message: be =~ /Ignoring hop headers/)
 		end
 	end
-
+	
 	with "head request" do
 		let(:request) {Protocol::HTTP::Request.new("https", "example.com", "HEAD", "/", "http/1.1", Protocol::HTTP::Headers[{"accept" => "text/html"}], body)}
 		
