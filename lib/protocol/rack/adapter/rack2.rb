@@ -116,6 +116,11 @@ module Protocol
 					
 					body&.close if body.respond_to?(:close)
 					
+					# Rack 2 does not include `rack.response_finished` in the specification. However, if the application has set it, we will call the callbacks here as it would be extremely surprising to not do so.
+					env&.[](RACK_RESPONSE_FINISHED)&.each do |callback|
+						callback.call(env, status, headers, exception)
+					end
+					
 					return failure_response(exception)
 				end
 				

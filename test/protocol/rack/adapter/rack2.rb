@@ -131,7 +131,6 @@ describe Protocol::Rack::Adapter::Rack2 do
 			expect(body).to be(:empty?)
 		end
 		
-		
 		it "can wrap streaming response" do
 			streaming_body = Protocol::Rack::Body::Streaming.new(->(stream){})
 			response = Protocol::HTTP::Response[200, headers: {}, body: streaming_body]
@@ -143,6 +142,31 @@ describe Protocol::Rack::Adapter::Rack2 do
 			expect(status).to be == 200
 			expect(headers).to have_keys(Protocol::Rack::RACK_HIJACK)
 			expect(body).to be == []
+		end
+	end
+	
+	with "response callbacks" do
+		let(:adapter) {subject.new(app)}
+		
+		let(:callback_called) {false}
+		let(:callback) {->(env, status, headers, exception) {@callback_called = true}}
+		let(:app) do
+			proc do |env|
+				env[Protocol::Rack::RACK_RESPONSE_FINISHED] = [callback]
+				raise StandardError.new("Test error")
+			end
+		end
+		let(:request) {Protocol::HTTP::Request["GET", "/", {}, nil]}
+		
+		it "calls response callbacks on failure" do
+			@callback_called = false
+			
+			response = adapter.call(request)
+			
+			expect(@callback_called).to be == true
+			
+			expect(response.status).to be == 500
+			expect(response.read).to be == "StandardError: Test error"
 		end
 	end
 end
