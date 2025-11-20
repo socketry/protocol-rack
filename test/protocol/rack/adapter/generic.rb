@@ -144,5 +144,71 @@ describe Protocol::Rack::Adapter::Generic do
 			expect(response.status).to be == 500
 			expect(response.read).to be == "StandardError: Test error"
 		end
+		
+		it "invokes callbacks in reverse order of registration on error" do
+			call_order = []
+			
+			callback1 = proc do |env, status, headers, error|
+				call_order << 1
+			end
+			
+			callback2 = proc do |env, status, headers, error|
+				call_order << 2
+			end
+			
+			callback3 = proc do |env, status, headers, error|
+				call_order << 3
+			end
+			
+			app_with_callbacks = proc do |env|
+				env[Protocol::Rack::RACK_RESPONSE_FINISHED] = [callback1, callback2, callback3]
+				raise StandardError.new("Test error")
+			end
+			
+			adapter_with_callbacks = subject.new(app_with_callbacks)
+			response = adapter_with_callbacks.call(request)
+			
+			# Callbacks should be invoked in reverse order: 3, 2, 1
+			expect(call_order).to be == [3, 2, 1]
+			expect(response.status).to be == 500
+		end
+		
+		it "handles errors from callbacks gracefully and continues invoking other callbacks" do
+			call_order = []
+			
+			callback1 = proc do |env, status, headers, error|
+				call_order << 1
+			end
+			
+			callback2 = proc do |env, status, headers, error|
+				call_order << 2
+				raise StandardError.new("Callback error")
+			end
+			
+			callback3 = proc do |env, status, headers, error|
+				call_order << 3
+			end
+			
+			app_with_callbacks = proc do |env|
+				env[Protocol::Rack::RACK_RESPONSE_FINISHED] = [callback1, callback2, callback3]
+				raise StandardError.new("Test error")
+			end
+			
+			adapter_with_callbacks = subject.new(app_with_callbacks)
+			
+			response = adapter_with_callbacks.call(request)
+			
+			# All callbacks should be invoked despite callback2 raising an error:
+			# Callbacks should be invoked in reverse order: 3, 2, 1
+			expect(call_order).to be == [3, 2, 1]
+			expect(response.status).to be == 500
+			
+			# Verify that the error was logged:
+			expect_console.to have_logged(
+				severity: be == :error,
+				subject: be == adapter_with_callbacks,
+				message: be =~ /Error occurred during response finished callback:/
+			)
+		end
 	end
 end

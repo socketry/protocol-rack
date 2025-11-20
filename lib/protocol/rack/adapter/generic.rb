@@ -135,6 +135,38 @@ module Protocol
 					}
 				end
 				
+				# Handle errors that occur during request processing. Logs the error, closes any response body, invokes `rack.response_finished` callbacks, and returns an appropriate failure response.
+				# 
+				# The `rack.response_finished` callbacks are invoked in reverse order of registration, as specified by the Rack specification. If a callback raises an exception, it is caught and logged, but does not prevent other callbacks from being invoked.
+				# 
+				# @parameter env [Hash] The Rack environment hash.
+				# @parameter status [Integer | Nil] The HTTP status code, if available. May be `nil` if the error occurred before the application returned a response.
+				# @parameter headers [Hash | Nil] The response headers, if available. May be `nil` if the error occurred before the application returned a response.
+				# @parameter body [Object | Nil] The response body, if available. May be `nil` if the error occurred before the application returned a response.
+				# @parameter error [Exception] The exception that occurred during request processing.
+				# @returns [Protocol::HTTP::Response] A failure response representing the error.
+				def handle_error(env, status, headers, body, error)
+					Console.error(self, "Error occurred during request processing:", error)
+					
+					# Close the response body if it exists and supports closing.
+					body&.close if body.respond_to?(:close)
+					
+					# Invoke `rack.response_finished` callbacks in reverse order of registration.
+					# This ensures that callbacks registered later are invoked first, matching the Rack specification.
+					env&.[](RACK_RESPONSE_FINISHED)&.reverse_each do |callback|
+						begin
+							callback.call(env, status, headers, error)
+						rescue => callback_error
+							# If a callback raises an exception, log it but continue invoking other callbacks.
+							# The Rack specification states that callbacks should not raise exceptions, but we handle
+							# this gracefully to prevent one misbehaving callback from breaking others.
+							Console.error(self, "Error occurred during response finished callback:", callback_error)
+						end
+					end
+					
+					return failure_response(error)
+				end
+				
 				# Build a rack `env` from the incoming request and apply it to the rack middleware.
 				#
 				# @parameter request [Protocol::HTTP::Request] The incoming request.
@@ -158,16 +190,8 @@ module Protocol
 					headers, meta = self.wrap_headers(headers)
 					
 					return Response.wrap(env, status, headers, meta, body, request)
-				rescue => exception
-					Console.error(self, exception)
-					
-					body&.close if body.respond_to?(:close)
-					
-					env&.[](RACK_RESPONSE_FINISHED)&.each do |callback|
-						callback.call(env, status, headers, exception)
-					end
-					
-					return failure_response(exception)
+				rescue => error
+					return self.handle_error(env, status, headers, body, error)
 				end
 				
 				# Generate a suitable response for the given exception.

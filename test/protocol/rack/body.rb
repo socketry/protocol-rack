@@ -3,11 +3,13 @@
 # Released under the MIT License.
 # Copyright, 2025, by Samuel Williams.
 
+require "sus/fixtures/console"
 require "protocol/rack/body"
 require "protocol/http/body/readable"
 require "console"
 
 describe Protocol::Rack::Body do
+	include Sus::Fixtures::Console::CapturedLogger
 	with "#no_content?" do
 		it "returns true for status codes that indicate no content" do
 			expect(subject.no_content?(204)).to be == true
@@ -154,6 +156,97 @@ describe Protocol::Rack::Body do
 				
 				expect(body).to be_nil
 				expect(called).to be == true
+			end
+			
+			it "invokes callbacks in reverse order of registration" do
+				call_order = []
+				
+				callback1 = proc do |env, status, headers, error|
+					call_order << 1
+				end
+				
+				callback2 = proc do |env, status, headers, error|
+					call_order << 2
+				end
+				
+				callback3 = proc do |env, status, headers, error|
+					call_order << 3
+				end
+				
+				env[Protocol::Rack::RACK_RESPONSE_FINISHED] = [callback1, callback2, callback3]
+				
+				body = subject.wrap(env, 200, headers, ["body"])
+				body.close
+				
+				# Callbacks should be invoked in reverse order: 3, 2, 1
+				expect(call_order).to be == [3, 2, 1]
+			end
+			
+			it "handles errors from callbacks gracefully and continues invoking other callbacks" do
+				call_order = []
+				
+				callback1 = proc do |env, status, headers, error|
+					call_order << 1
+				end
+				
+				callback2 = proc do |env, status, headers, error|
+					call_order << 2
+					raise StandardError.new("Callback error")
+				end
+				
+				callback3 = proc do |env, status, headers, error|
+					call_order << 3
+				end
+				
+				env[Protocol::Rack::RACK_RESPONSE_FINISHED] = [callback1, callback2, callback3]
+				
+				body = subject.wrap(env, 200, headers, ["body"])
+				body.close
+				
+				# All callbacks should be invoked despite callback2 raising an error
+				# Callbacks should be invoked in reverse order: 3, 2, 1
+				expect(call_order).to be == [3, 2, 1]
+				
+				# Verify that the error was logged
+				expect_console.to have_logged(
+					severity: be == :error,
+					subject: be == Protocol::Rack::Body,
+					message: be =~ /Error occurred during response finished callback:/
+				)
+			end
+			
+			it "handles errors from callbacks when body is empty" do
+				call_order = []
+				
+				callback1 = proc do |env, status, headers, error|
+					call_order << 1
+				end
+				
+				callback2 = proc do |env, status, headers, error|
+					call_order << 2
+					raise StandardError.new("Callback error")
+				end
+				
+				callback3 = proc do |env, status, headers, error|
+					call_order << 3
+				end
+				
+				env[Protocol::Rack::RACK_RESPONSE_FINISHED] = [callback1, callback2, callback3]
+				
+				body = subject.wrap(env, 204, headers, [])
+				
+				expect(body).to be_nil
+				
+				# All callbacks should be invoked despite callback2 raising an error
+				# Callbacks should be invoked in reverse order: 3, 2, 1
+				expect(call_order).to be == [3, 2, 1]
+				
+				# Verify that the error was logged:
+				expect_console.to have_logged(
+					severity: be == :error,
+					subject: be == Protocol::Rack::Body,
+					message: be =~ /Error occurred during response finished callback:/
+				)
 			end
 		end
 	end

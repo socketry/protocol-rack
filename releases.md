@@ -1,5 +1,10 @@
 # Releases
 
+## Unreleased
+
+  - Correctly invoke `rack.response_finished` in reverse order.
+  - Tolerate errors during `rack.response_finished` callbacks.
+
 ## v0.17.0
 
   - Support `rack.response_finished` in Rack 2 if it's present in the environment.

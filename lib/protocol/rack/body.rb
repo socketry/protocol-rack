@@ -7,6 +7,7 @@ require_relative "body/streaming"
 require_relative "body/enumerable"
 require_relative "constants"
 
+require "console"
 require "protocol/http/body/completable"
 require "protocol/http/body/head"
 
@@ -103,8 +104,10 @@ module Protocol
 				return body
 			end
 			
-			# Create a completion callback for response finished handlers.
-			# The callback is called with any error that occurred during response processing.
+			# Create a completion callback for response finished handlers. The callback is called with any error that occurred during response processing.
+			# 
+			# Callbacks are invoked in reverse order of registration, as specified by the Rack specification.
+			# If a callback raises an exception, it is caught and logged, but does not prevent other callbacks from being invoked.
 			# 
 			# @parameter response_finished [Array] Array of response finished callbacks.
 			# @parameter env [Hash] The Rack environment.
@@ -113,8 +116,16 @@ module Protocol
 			# @returns [Proc] A callback that calls all response finished handlers.
 			def self.completion_callback(response_finished, env, status, headers)
 				proc do |error|
-					response_finished.each do |callback|
-						callback.call(env, status, headers, error)
+					# Invoke callbacks in reverse order of registration, as specified by the Rack specification.
+					response_finished.reverse_each do |callback|
+						begin
+							callback.call(env, status, headers, error)
+						rescue => callback_error
+							# If a callback raises an exception, log it but continue invoking other callbacks.
+							# The Rack specification states that callbacks should not raise exceptions, but we handle
+							# this gracefully to prevent one misbehaving callback from breaking others.
+							Console.error(self, "Error occurred during response finished callback:", callback_error)
+						end
 					end
 				end
 			end
