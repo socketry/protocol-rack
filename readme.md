@@ -18,26 +18,26 @@ Please see the [project documentation](https://socketry.github.io/protocol-rack/
 Given a rack application, you can adapt it for use on `async-http`:
 
 ``` ruby
-require 'async'
-require 'async/http/server'
-require 'async/http/client'
-require 'async/http/endpoint'
-require 'protocol/rack/adapter'
+require "async"
+require "async/http/server"
+require "async/http/client"
+require "async/http/endpoint"
+require "protocol/rack/adapter"
 
 app = proc{|env| [200, {}, ["Hello World"]]}
 middleware = Protocol::Rack::Adapter.new(app)
 
 Async do
-  endpoint = Async::HTTP::Endpoint.parse("http://localhost:9292")
-  
-  server_task = Async(transient: true) do
-    server = Async::HTTP::Server.new(middleware, endpoint)
-    server.run
-  end
-  
-  client = Async::HTTP::Client.new(endpoint)
-  puts client.get("/").read
-  # "Hello World"
+	endpoint = Async::HTTP::Endpoint.parse("http://localhost:9292")
+	
+	server_task = Async(transient: true) do
+		server = Async::HTTP::Server.new(middleware, endpoint)
+		server.run
+	end
+	
+	client = Async::HTTP::Client.new(endpoint)
+	puts client.get("/").read
+		# "Hello World"
 end
 ```
 
@@ -46,21 +46,21 @@ end
 While not tested, in theory any Rack compatible server can host `Protocol::HTTP` compatible middlewares.
 
 ``` ruby
-require 'protocol/http/middleware'
-require 'protocol/rack'
+require "protocol/http/middleware"
+require "protocol/rack"
 
 # Your native application:
 middleware = Protocol::HTTP::Middleware::HelloWorld
 
-run proc{|env|
-  # Convert the rack request to a compatible rich request object:
-  request = Protocol::Rack::Request[env]
-  
-  # Call your application
-  response = middleware.call(request)
-  
-  Protocol::Rack::Adapter.make_response(env, response)
-}
+run do |env|
+	# Convert the rack request to a compatible rich request object:
+	request = Protocol::Rack::Request[env]
+	
+	# Call your application
+	response = middleware.call(request)
+	
+	Protocol::Rack::Adapter.make_response(env, response)
+end
 ```
 
 ## Releases

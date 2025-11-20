@@ -14,7 +14,7 @@ describe Protocol::Rack::Adapter::Rack2 do
 	include Sus::Fixtures::Console::CapturedLogger
 	
 	with "#call" do
-		let(:app) {->(env) {[200, {}, []]}}
+		let(:app) {->(env){[200, {}, []]}}
 		let(:adapter) {subject.new(app)}
 		
 		let(:body) {Protocol::HTTP::Body::Buffered.new}
@@ -22,7 +22,7 @@ describe Protocol::Rack::Adapter::Rack2 do
 		let(:response) {adapter.call(request)}
 		
 		with "set-cookie headers that has multiple values" do
-			let(:app) {->(env) {[200, {"set-cookie" => "a=b\nx=y"}, []]}}
+			let(:app) {->(env){[200, {"set-cookie" => "a=b\nx=y"}, []]}}
 			
 			it "can make a response newline separated headers" do
 				expect(response.headers["set-cookie"]).to be == ["a=b", "x=y"]
@@ -30,7 +30,7 @@ describe Protocol::Rack::Adapter::Rack2 do
 		end
 		
 		with "content-length header" do
-			let(:app) {->(env) {[200, {"content-length" => "10"}, ["1234567890"]]}}
+			let(:app) {->(env){[200, {"content-length" => "10"}, ["1234567890"]]}}
 			
 			it "removes content-length header" do
 				expect(response.headers).not.to be(:include?, "content-length")
@@ -38,7 +38,7 @@ describe Protocol::Rack::Adapter::Rack2 do
 		end
 		
 		with "connection: close header" do
-			let(:app) {->(env) {[200, {"connection" => "close"}, []]}}
+			let(:app) {->(env){[200, {"connection" => "close"}, []]}}
 			
 			it "removes content-length header" do
 				expect(response.headers).not.to be(:include?, "connection")
@@ -47,7 +47,7 @@ describe Protocol::Rack::Adapter::Rack2 do
 		
 		with "body that responds to #to_path" do
 			let(:body) {Array.new}
-			let(:app) {->(env) {[200, {}, body]}}
+			let(:app) {->(env){[200, {}, body]}}
 			
 			it "should generate file body" do
 				expect(body).to receive(:to_path).and_return("/dev/null")
@@ -56,7 +56,7 @@ describe Protocol::Rack::Adapter::Rack2 do
 			end
 			
 			with "206 partial response status" do
-				let(:app) {->(env) {[200, {}, body]}}
+				let(:app) {->(env){[200, {}, body]}}
 				
 				it "should not modify partial responses" do
 					expect(response.body).to be_a(Protocol::Rack::Body::Enumerable)
@@ -75,7 +75,7 @@ describe Protocol::Rack::Adapter::Rack2 do
 		
 		with "response handling" do
 			with "array response" do
-				let(:app) {->(env) {[200, {}, ["Hello"]]}}
+				let(:app) {->(env){[200, {}, ["Hello"]]}}
 				
 				it "handles array response correctly" do
 					expect(response.body).to be_a(Protocol::Rack::Body::Enumerable)
@@ -85,7 +85,7 @@ describe Protocol::Rack::Adapter::Rack2 do
 		
 		with "header transformation" do
 			with "array values" do
-				let(:app) {->(env) {[200, {"x-custom" => "a\nb"}, []]}}
+				let(:app) {->(env){[200, {"x-custom" => "a\nb"}, []]}}
 				
 				it "joins array values with newlines in response" do
 					expect(response.headers["x-custom"]).to be == ["a", "b"]
@@ -93,7 +93,7 @@ describe Protocol::Rack::Adapter::Rack2 do
 			end
 			
 			with "non-array values" do
-				let(:app) {->(env) {[200, {"x-custom" => "value"}, []]}}
+				let(:app) {->(env){[200, {"x-custom" => "value"}, []]}}
 				
 				it "preserves non-array values" do
 					expect(response.headers["x-custom"]).to be == ["value"]
@@ -101,7 +101,7 @@ describe Protocol::Rack::Adapter::Rack2 do
 			end
 			
 			with "multiple set-cookie headers" do
-				let(:app) {->(env) {[200, {"set-cookie" => "a=b\nx=y"}, []]}}
+				let(:app) {->(env){[200, {"set-cookie" => "a=b\nx=y"}, []]}}
 				
 				it "joins set-cookie headers with newlines" do
 					expect(response.headers["set-cookie"]).to be == ["a=b", "x=y"]
@@ -109,7 +109,7 @@ describe Protocol::Rack::Adapter::Rack2 do
 			end
 			
 			with "rack specific headers" do
-				let(:app) {->(env) {[200, {"rack.hijack" => ->(stream){}}, []]}}
+				let(:app) {->(env){[200, {"rack.hijack" => ->(stream){}}, []]}}
 				
 				it "preserves rack specific headers in meta" do
 					expect(response.headers).not.to be(:include?, "rack.hijack")
@@ -149,7 +149,7 @@ describe Protocol::Rack::Adapter::Rack2 do
 		let(:adapter) {subject.new(app)}
 		
 		let(:callback_called) {false}
-		let(:callback) {->(env, status, headers, exception) {@callback_called = true}}
+		let(:callback) {->(env, status, headers, exception){@callback_called = true}}
 		let(:app) do
 			proc do |env|
 				env[Protocol::Rack::RACK_RESPONSE_FINISHED] = [callback]

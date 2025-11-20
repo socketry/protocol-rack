@@ -125,7 +125,7 @@ describe Protocol::Rack::Adapter::Generic do
 	
 	with "response callbacks" do
 		let(:callback_called) {false}
-		let(:callback) {->(env, status, headers, exception) {@callback_called = true}}
+		let(:callback) {->(env, status, headers, exception){@callback_called = true}}
 		let(:app) do
 			proc do |env|
 				env[Protocol::Rack::RACK_RESPONSE_FINISHED] = [callback]

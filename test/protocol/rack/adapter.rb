@@ -178,7 +178,7 @@ describe Protocol::Rack::Adapter do
 			let(:response) {client.get("/")}
 			
 			with "nil response" do
-				let(:app) {->(env) {nil}}
+				let(:app) {->(env){nil}}
 				
 				it "raises an error" do
 					expect(response.status).to be == 500
@@ -187,7 +187,7 @@ describe Protocol::Rack::Adapter do
 			end
 			
 			with "nil headers" do
-				let(:app) {->(env) {[200, nil, []]}}
+				let(:app) {->(env){[200, nil, []]}}
 				
 				it "raises an error" do
 					expect(response.status).to be == 500
