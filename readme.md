@@ -13,6 +13,10 @@ Provides abstractions for working with the Rack specification on top of [`Protoc
 
 Please see the [project documentation](https://socketry.github.io/protocol-rack/) for more details.
 
+  - [Getting Started](https://socketry.github.io/protocol-rack/guides/getting-started/index) - This guide explains how to get started with `protocol-rack` and integrate Rack applications with `Protocol::HTTP` servers.
+
+  - [Request and Response Handling](https://socketry.github.io/protocol-rack/guides/request-response/index) - This guide explains how to work with requests and responses when bridging between Rack and `Protocol::HTTP`, covering advanced use cases and edge cases.
+
 ### Application Adapter
 
 Given a rack application, you can adapt it for use on `async-http`:
@@ -66,6 +70,11 @@ end
 ## Releases
 
 Please see the [project releases](https://socketry.github.io/protocol-rack/releases/index) for all releases.
+
+### Unreleased
+
+  - Correctly invoke `rack.response_finished` in reverse order.
+  - Tolerate errors during `rack.response_finished` callbacks.
 
 ### v0.17.0
 

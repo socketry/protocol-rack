@@ -237,7 +237,7 @@ describe Protocol::Rack::Body do
 				
 				expect(body).to be_nil
 				
-				# All callbacks should be invoked despite callback2 raising an error
+				# All callbacks should be invoked despite callback2 raising an error:
 				# Callbacks should be invoked in reverse order: 3, 2, 1
 				expect(call_order).to be == [3, 2, 1]
 				
