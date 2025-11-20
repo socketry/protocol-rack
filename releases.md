@@ -1,6 +1,6 @@
 # Releases
 
-## Unreleased
+## v0.18.0
 
   - Correctly invoke `rack.response_finished` in reverse order.
   - Tolerate errors during `rack.response_finished` callbacks.

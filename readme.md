@@ -71,7 +71,7 @@ end
 
 Please see the [project releases](https://socketry.github.io/protocol-rack/releases/index) for all releases.
 
-### Unreleased
+### v0.18.0
 
   - Correctly invoke `rack.response_finished` in reverse order.
   - Tolerate errors during `rack.response_finished` callbacks.
