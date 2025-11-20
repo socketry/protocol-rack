@@ -53,3 +53,25 @@ end
 ```
 
 The adapter automatically detects your Rack version (v2, v3, or v3.1+) and uses the appropriate implementation, ensuring compatibility without any configuration.
+
+### Server Adapter
+
+Any Rack compatible server can host `Protocol::HTTP` compatible middlewares.
+
+``` ruby
+require "protocol/http/middleware"
+require "protocol/rack"
+
+# Your native application:
+middleware = Protocol::HTTP::Middleware::HelloWorld
+
+run do |env|
+	# Convert the rack request to a compatible rich request object:
+	request = Protocol::Rack::Request[env]
+	
+	# Call your application
+	response = middleware.call(request)
+	
+	Protocol::Rack::Adapter.make_response(env, response)
+end
+```

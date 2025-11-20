@@ -17,56 +17,6 @@ Please see the [project documentation](https://socketry.github.io/protocol-rack/
 
   - [Request and Response Handling](https://socketry.github.io/protocol-rack/guides/request-response/index) - This guide explains how to work with requests and responses when bridging between Rack and `Protocol::HTTP`, covering advanced use cases and edge cases.
 
-### Application Adapter
-
-Given a rack application, you can adapt it for use on `async-http`:
-
-``` ruby
-require "async"
-require "async/http/server"
-require "async/http/client"
-require "async/http/endpoint"
-require "protocol/rack/adapter"
-
-app = proc{|env| [200, {}, ["Hello World"]]}
-middleware = Protocol::Rack::Adapter.new(app)
-
-Async do
-	endpoint = Async::HTTP::Endpoint.parse("http://localhost:9292")
-	
-	server_task = Async(transient: true) do
-		server = Async::HTTP::Server.new(middleware, endpoint)
-		server.run
-	end
-	
-	client = Async::HTTP::Client.new(endpoint)
-	puts client.get("/").read
-		# "Hello World"
-end
-```
-
-### Server Adapter
-
-While not tested, in theory any Rack compatible server can host `Protocol::HTTP` compatible middlewares.
-
-``` ruby
-require "protocol/http/middleware"
-require "protocol/rack"
-
-# Your native application:
-middleware = Protocol::HTTP::Middleware::HelloWorld
-
-run do |env|
-	# Convert the rack request to a compatible rich request object:
-	request = Protocol::Rack::Request[env]
-	
-	# Call your application
-	response = middleware.call(request)
-	
-	Protocol::Rack::Adapter.make_response(env, response)
-end
-```
-
 ## Releases
 
 Please see the [project releases](https://socketry.github.io/protocol-rack/releases/index) for all releases.
