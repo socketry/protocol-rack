@@ -1,6 +1,6 @@
 # Releases
 
-## Unreleased
+## v0.17.0
 
   - Support `rack.response_finished` in Rack 2 if it's present in the environment.
 

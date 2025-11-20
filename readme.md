@@ -67,6 +67,10 @@ end
 
 Please see the [project releases](https://socketry.github.io/protocol-rack/releases/index) for all releases.
 
+### v0.17.0
+
+  - Support `rack.response_finished` in Rack 2 if it's present in the environment.
+
 ### v0.16.0
 
   - Hijacked IO is no longer duped, as it's not retained by the original connection, and `SSLSocket` does not support duping.
