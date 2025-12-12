@@ -21,6 +21,10 @@ Please see the [project documentation](https://socketry.github.io/protocol-rack/
 
 Please see the [project releases](https://socketry.github.io/protocol-rack/releases/index) for all releases.
 
+### v0.19.0
+
+  - Use `Headers#add` instead of `Headers#[]=` in Rack3 and Rack31 adapters, which is the correct interface for appending headers.
+
 ### v0.18.0
 
   - Correctly invoke `rack.response_finished` in reverse order.

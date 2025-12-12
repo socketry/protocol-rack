@@ -1,6 +1,6 @@
 # Releases
 
-## Unreleased
+## v0.19.0
 
   - Use `Headers#add` instead of `Headers#[]=` in Rack3 and Rack31 adapters, which is the correct interface for appending headers.
 
