@@ -103,10 +103,10 @@ module Protocol
 							meta[key] = value
 						elsif value.is_a?(Array)
 							value.each do |value|
-								headers[key] = value
+								headers.add(key, value)
 							end
 						else
-							headers[key] = value
+							headers.add(key, value)
 						end
 					end
 					

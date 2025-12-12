@@ -131,10 +131,10 @@ module Protocol
 							meta[key] = value
 						elsif value.is_a?(String)
 							value.split("\n").each do |value|
-								headers[key] = value
+								headers.add(key, value)
 							end
 						else
-							headers[key] = value
+							headers.add(key, value)
 						end
 					end
 					
