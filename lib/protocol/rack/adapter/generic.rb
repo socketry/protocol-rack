@@ -117,8 +117,11 @@ module Protocol
 						env[RACK_HIJACK] = proc{request.hijack!.io}
 					end
 					
-					# HTTP/2 prefers `:authority` over `host`, so we do this for backwards compatibility.
-					env[CGI::HTTP_HOST] ||= request.authority
+					# HTTP/2 prefers `:authority` over `host`:
+					if authority = request.authority
+						# Note that we also already have SERVER_NAME and SERVER_PORT which are based on the authority.
+						env[CGI::HTTP_HOST] = authority
+					end
 					
 					if peer = request.peer
 						env[CGI::REMOTE_ADDR] = peer.ip_address
