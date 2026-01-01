@@ -59,4 +59,25 @@ describe Protocol::Rack::Request do
 			)
 		end
 	end
+	
+	with "incoming request with both host header and authority" do
+		let(:headers) {Protocol::HTTP::Headers[{"host" => "header.example.com"}]}
+		let(:request) {Protocol::HTTP::Request.new("https", "authority.example.com", "GET", "/", "HTTP/1.1", headers, body)}
+		
+		it "correctly sets HTTP_HOST to the authority instead of host header" do
+			# According to HTTP/2 semantics, :authority should take precedence over the host header when both are present:
+			expect(env).to have_keys(
+				"HTTP_HOST" => be == "authority.example.com"
+			)
+		end
+	end
+	
+	with "incoming request with trailing host header" do
+		let(:headers) {Protocol::HTTP::Headers.new([["host", "header.example.com"]], 0)}
+		let(:request) {Protocol::HTTP::Request.new("https", nil, "GET", "/", "HTTP/1.1", headers, body)}
+		
+		it "rejects the request" do
+			expect(env).not.to have_keys("HTTP_HOST")
+		end
+	end
 end
