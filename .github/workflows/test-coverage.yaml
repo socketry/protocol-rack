@@ -28,6 +28,7 @@ jobs:
           - gems/rack-v2.rb
           - gems/rack-v30.rb
           - gems/rack-v31.rb
+          - gems/rack-v32.rb
     
     steps:
     - uses: actions/checkout@v6
