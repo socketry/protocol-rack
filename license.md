@@ -1,6 +1,6 @@
 # MIT License
 
-Copyright, 2022-2025, by Samuel Williams.  
+Copyright, 2022-2026, by Samuel Williams.  
 Copyright, 2023, by Genki Takiuchi.  
 Copyright, 2025, by Francisco Mejia.  
 
