@@ -1,5 +1,9 @@
 # Releases
 
+## Unreleased
+
+  - Convert header values into strings using `to_s` so that `Headers#each` can yield non-string values if necessary.
+
 ## v0.19.0
 
   - Use `Headers#add` instead of `Headers#[]=` in Rack3 and Rack31 adapters, which is the correct interface for appending headers.
