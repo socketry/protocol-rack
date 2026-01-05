@@ -76,7 +76,7 @@ module Protocol
 								env[http_key] = "#{current_value},#{value}"
 							end
 						else
-							env[http_key] = value
+							env[http_key] = value.to_s
 						end
 					end
 				end
