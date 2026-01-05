@@ -89,7 +89,7 @@ module Protocol
 				# No-op.
 			end
 			
-			def sysread(size, buffer = nil)
+			def sysread(size, buffer)
 				if @body
 					# User's may forget to call #close...
 					if chunk = @body.read
@@ -100,13 +100,8 @@ module Protocol
 							@closed = true
 						end
 						
-						if buffer
-							# If a buffer is provided, we copy the chunk into it:
-							buffer.replace(chunk)
-						else
-							# Otherwise we return the chunk directly:
-							buffer = chunk
-						end
+						# The buffer is always provided, and we replace its contents:
+						buffer.replace(chunk)
 						
 						return buffer
 					else
