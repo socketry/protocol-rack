@@ -105,7 +105,8 @@ module Protocol
 						env[CGI::CONTENT_LENGTH] = length.to_s
 					end
 					
-					self.unwrap_headers(request.headers, env)
+					# We ignore trailers for the purpose of constructing the rack environment:
+					self.unwrap_headers(request.headers.header, env)
 					
 					# For the sake of compatibility, we set the `HTTP_UPGRADE` header to the requested protocol.
 					if protocol = request.protocol and request.version.start_with?("HTTP/1")

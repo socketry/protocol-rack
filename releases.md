@@ -1,5 +1,9 @@
 # Releases
 
+## Unreleased
+
+  - For the purpose of constructing the rack request environment, trailers are ignored.
+
 ## v0.20.0
 
   - Convert header values into strings using `to_s` so that `Headers#each` can yield non-string values if necessary.
