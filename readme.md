@@ -21,6 +21,10 @@ Please see the [project documentation](https://socketry.github.io/protocol-rack/
 
 Please see the [project releases](https://socketry.github.io/protocol-rack/releases/index) for all releases.
 
+### v0.21.0
+
+  - For the purpose of constructing the rack request environment, trailers are ignored.
+
 ### v0.20.0
 
   - Convert header values into strings using `to_s` so that `Headers#each` can yield non-string values if necessary.
@@ -59,10 +63,6 @@ Please see the [project releases](https://socketry.github.io/protocol-rack/relea
 ### v0.12.0
 
   - Ignore (and close) response bodies for status codes that don't allow them.
-
-### v0.11.2
-
-  - Stop setting `env["SERVER_PORT"]` to `nil` if not present.
 
 ## Contributing
 

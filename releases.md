@@ -1,6 +1,6 @@
 # Releases
 
-## Unreleased
+## v0.21.0
 
   - For the purpose of constructing the rack request environment, trailers are ignored.
 
