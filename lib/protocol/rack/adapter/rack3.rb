@@ -117,9 +117,9 @@ module Protocol
 				# Handles protocol upgrades and streaming responses.
 				# Unlike Rack 2, this adapter forces streaming responses by converting the body to a callable.
 				# 
-				# @parameter env [Hash] The rack environment.
+				# @parameter env [Hash] The Rack environment.
 				# @parameter response [Protocol::HTTP::Response] The HTTP response.
-				# @returns [Tuple(Integer, Hash, Object)] The Rack 3 response tuple [status, headers, body].
+				# @returns [Tuple(Integer, Hash, Object)] The Rack 3 response tuple `[status, headers, body]`.
 				def self.make_response(env, response)
 					# These interfaces should be largely compatible:
 					headers = response.headers.to_h

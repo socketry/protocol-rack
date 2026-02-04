@@ -45,21 +45,21 @@ module Protocol
 			def self.wrap(env, status, headers, body, input = nil, head = false)
 				# In no circumstance do we want this header propagating out:
 				if length = headers.delete(CONTENT_LENGTH)
-					# We don't really trust the user to provide the right length to the transport.
+					# We don't really trust the user to provide the right length to the transport:
 					length = Integer(length)
 				end
 				
-				# If we have an Async::HTTP body, we return it directly:
+				# If we have a Protocol::HTTP body, we return it directly:
 				if body.is_a?(::Protocol::HTTP::Body::Readable)
 					# Ignore.
 				elsif status == 200 and body.respond_to?(:to_path)
 					begin
-						# Don't mangle partial responses (206)
+						# Don't mangle partial responses (206):
 						body = ::Protocol::HTTP::Body::File.open(body.to_path).tap do
 							body.close if body.respond_to?(:close) # Close the original body.
 						end
 					rescue Errno::ENOENT
-						# If the file is not available, ignore.
+						# If the file is not available, ignore:
 					end
 				elsif body.respond_to?(:each)
 					body = Body::Enumerable.wrap(body, length)
@@ -116,14 +116,12 @@ module Protocol
 			# @returns [Proc] A callback that calls all response finished handlers.
 			def self.completion_callback(response_finished, env, status, headers)
 				proc do |error|
-					# Invoke callbacks in reverse order of registration, as specified by the Rack specification.
+					# Callbacks are invoked in reverse order of registration, as required by the Rack specification:
 					response_finished.reverse_each do |callback|
 						begin
 							callback.call(env, status, headers, error)
 						rescue => callback_error
-							# If a callback raises an exception, log it but continue invoking other callbacks.
-							# The Rack specification states that callbacks should not raise exceptions, but we handle
-							# this gracefully to prevent one misbehaving callback from breaking others.
+							# If a callback raises an exception, log it but continue invoking other callbacks. The Rack specification states that callbacks should not raise exceptions, but we handle this gracefully to prevent one misbehaving callback from breaking others:
 							Console.error(self, "Error occurred during response finished callback:", callback_error)
 						end
 					end

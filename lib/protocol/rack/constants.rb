@@ -5,10 +5,10 @@
 
 module Protocol
 	module Rack
-		# Used for injecting the raw request in the the rack environment.
+		# Used for injecting the raw request into the Rack environment.
 		PROTOCOL_HTTP_REQUEST = "protocol.http.request"
 		
-		# CGI keys <https://tools.ietf.org/html/rfc3875#section-4.1>:
+		# CGI environment variable keys as defined in [RFC 3875](https://tools.ietf.org/html/rfc3875#section-4.1).
 		module CGI
 			HTTP_HOST = "HTTP_HOST"
 			HTTP_UPGRADE = "HTTP_UPGRADE"
@@ -27,11 +27,11 @@ module Protocol
 			
 			HTTP_COOKIE = "HTTP_COOKIE"
 			
-			# Header constants:
+			# Additional HTTP header constants.
 			HTTP_X_FORWARDED_PROTO = "HTTP_X_FORWARDED_PROTO"
 		end
 		
-		# Rack environment variables:
+		# Rack environment variable keys.
 		RACK_ERRORS = "rack.errors"
 		RACK_LOGGER = "rack.logger"
 		RACK_INPUT = "rack.input"
@@ -39,7 +39,7 @@ module Protocol
 		RACK_PROTOCOL = "rack.protocol"
 		RACK_RESPONSE_FINISHED = "rack.response_finished"
 		
-		# Rack hijack support:
+		# Rack hijack support keys.
 		RACK_IS_HIJACK = "rack.hijack?"
 		RACK_HIJACK = "rack.hijack"
 	end

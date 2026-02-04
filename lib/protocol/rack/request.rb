@@ -12,8 +12,8 @@ require_relative "body/input_wrapper"
 module Protocol
 	module Rack
 		# A Rack-compatible HTTP request wrapper.
-		# This class provides a bridge between Rack's environment hash and Protocol::HTTP::Request.
-		# It handles conversion of Rack environment variables to HTTP request properties.
+		#
+		# This class provides a bridge between Rack's environment hash and {Protocol::HTTP::Request}. It handles conversion of Rack environment variables to HTTP request properties.
 		class Request < ::Protocol::HTTP::Request
 			# Get or create a Request instance for the given Rack environment.
 			# The request is cached in the environment to avoid creating multiple instances.
@@ -43,7 +43,8 @@ module Protocol
 			end
 			
 			# Extract the protocol list from the Rack environment.
-			# Checks both `rack.protocol` and `HTTP_UPGRADE` headers.
+			#
+			# Checks both `rack.protocol` and {CGI::HTTP_UPGRADE} headers.
 			# 
 			# @parameter env [Hash] The Rack environment hash.
 			# @returns [Array(String) | Nil] The list of protocols or `nil` if none specified.

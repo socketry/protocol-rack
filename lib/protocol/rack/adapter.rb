@@ -32,25 +32,25 @@ module Protocol
 			
 			# Creates a new adapter instance for the given Rack application.
 			# 
-			# @parameter app [Interface(:call)] A Rack application that responds to #call
-			# @returns [Protocol::HTTP::Middleware] An adapter that can handle HTTP requests
+			# @parameter app [Interface(:call)] A Rack application that responds to `call`.
+			# @returns [Protocol::HTTP::Middleware] An adapter that can handle HTTP requests.
 			def self.new(app)
 				IMPLEMENTATION.wrap(app)
 			end
 			
-			# Converts a Rack response into a Protocol::HTTP response.
+			# Converts a Rack response into a {Protocol::HTTP::Response}.
 			# 
-			# @parameter env [Hash] The Rack environment
-			# @parameter response [Array] The Rack response [status, headers, body]
-			# @returns [Protocol::HTTP::Response] A Protocol::HTTP response
+			# @parameter env [Hash] The Rack environment.
+			# @parameter response [Array] The Rack response tuple `[status, headers, body]`.
+			# @returns [Protocol::HTTP::Response] A Protocol::HTTP response.
 			def self.make_response(env, response)
 				IMPLEMENTATION.make_response(env, response)
 			end
 			
-			# Parses a file path from the Rack environment.
+			# Parses a Rackup file and returns the application.
 			# 
-			# @parameter env [Hash] The Rack environment
-			# @returns [String | Nil] The parsed file path or nil if not found
+			# @parameter path [String] The path to the Rackup file.
+			# @returns [Interface(:call)] The parsed Rack application.
 			def self.parse_file(...)
 				IMPLEMENTATION.parse_file(...)
 			end

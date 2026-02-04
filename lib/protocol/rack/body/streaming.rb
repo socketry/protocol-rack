@@ -10,7 +10,6 @@ module Protocol
 		module Body
 			# Wraps a Rack streaming response body.
 			# The body must be callable and accept a stream argument.
-			# This is typically used for Rack hijack responses or bodies wrapped in `Rack::BodyProxy`.
 			# When closed, this class ensures the wrapped body's `close` method is called if it exists.
 			class Streaming < ::Protocol::HTTP::Body::Streamable::ResponseBody
 				# Initialize the streaming body wrapper.

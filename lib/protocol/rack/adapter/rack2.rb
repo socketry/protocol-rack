@@ -79,7 +79,7 @@ module Protocol
 					return env
 				end
 				
-				# Build a rack `env` from the incoming request and apply it to the rack middleware.
+				# Build a Rack `env` from the incoming request and apply it to the Rack middleware.
 				#
 				# @parameter request [Protocol::HTTP::Request] The incoming request.
 				# @returns [Protocol::HTTP::Response] The HTTP response.
@@ -105,7 +105,7 @@ module Protocol
 					
 					headers, meta = self.wrap_headers(headers)
 					
-					# Rack 2 spec does not allow only partial hijacking.
+					# Rack 2 spec does not allow only partial hijacking:
 					# if hijack_body = meta[RACK_HIJACK]
 					# 	body = hijack_body
 					# end
@@ -115,7 +115,7 @@ module Protocol
 					return self.handle_error(env, status, headers, body, error)
 				end
 				
-				# Process the rack response headers into a {Protocol::HTTP::Headers} instance, along with any extra `rack.` metadata.
+				# Process the Rack response headers into a {Protocol::HTTP::Headers} instance, along with any extra `rack.` metadata.
 				# Headers with newline-separated values are split into multiple headers.
 				# 
 				# @parameter fields [Hash] The raw response headers.
@@ -144,9 +144,9 @@ module Protocol
 				# Convert a {Protocol::HTTP::Response} into a Rack 2 response tuple.
 				# Handles protocol upgrades and streaming responses.
 				# 
-				# @parameter env [Hash] The rack environment.
+				# @parameter env [Hash] The Rack environment.
 				# @parameter response [Protocol::HTTP::Response] The HTTP response.
-				# @returns [Tuple(Integer, Hash, Object)] The Rack 2 response tuple [status, headers, body].
+				# @returns [Tuple(Integer, Hash, Object)] The Rack 2 response tuple `[status, headers, body]`.
 				def self.make_response(env, response)
 					# These interfaces should be largely compatible:
 					headers = response.headers.to_h
