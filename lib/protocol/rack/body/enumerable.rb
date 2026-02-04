@@ -69,12 +69,14 @@ module Protocol
 				# 
 				# @parameter error [Exception] Optional error that occurred during processing.
 				def close(error = nil)
-					if @body and @body.respond_to?(:close)
-						@body.close
-					end
-					
-					@body = nil
 					@chunks = nil
+					
+					if body = @body
+						@body = nil
+						if body.respond_to?(:close)
+							body.close
+						end
+					end
 					
 					super
 				end
