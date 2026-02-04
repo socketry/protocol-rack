@@ -69,7 +69,7 @@ describe Protocol::Rack::Body::Streaming do
 		end
 		
 		it "does not fail if wrapped body does not respond to close" do
-			wrapped_body = proc { |stream| stream.write("Hello") }
+			wrapped_body = proc{|stream| stream.write("Hello")}
 			
 			body = subject.new(wrapped_body)
 			body.close
