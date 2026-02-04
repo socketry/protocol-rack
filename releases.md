@@ -1,6 +1,6 @@
 # Releases
 
-## Unreleased
+## v0.21.1
 
   - Fix missing `body#close` for streaming bodies.
 

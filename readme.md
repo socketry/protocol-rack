@@ -21,6 +21,10 @@ Please see the [project documentation](https://socketry.github.io/protocol-rack/
 
 Please see the [project releases](https://socketry.github.io/protocol-rack/releases/index) for all releases.
 
+### v0.21.1
+
+  - Fix missing `body#close` for streaming bodies.
+
 ### v0.21.0
 
   - For the purpose of constructing the rack request environment, trailers are ignored.
@@ -59,10 +63,6 @@ Please see the [project releases](https://socketry.github.io/protocol-rack/relea
   - 100% test and documentation coverage.
   - `Protocol::Rack::Input#rewind` now works when the entire input is already read.
   - `Protocol::Rack::Adapter::Rack2` has stricter validation of the application response.
-
-### v0.12.0
-
-  - Ignore (and close) response bodies for status codes that don't allow them.
 
 ## Contributing
 
