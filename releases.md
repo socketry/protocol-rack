@@ -1,5 +1,9 @@
 # Releases
 
+## Unreleased
+
+  - Fix missing `body#close` for streaming bodies.
+
 ## v0.21.0
 
   - For the purpose of constructing the rack request environment, trailers are ignored.

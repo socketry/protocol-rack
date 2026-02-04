@@ -50,4 +50,29 @@ describe Protocol::Rack::Body::Streaming do
 			expect(body.read).to be == "Hello"
 		end
 	end
+	
+	with "#close" do
+		it "closes the wrapped body if it responds to close" do
+			close_called = false
+			wrapped_body = Object.new
+			wrapped_body.define_singleton_method(:close) do
+				close_called = true
+			end
+			wrapped_body.define_singleton_method(:call) do |stream|
+				stream.write("Hello")
+			end
+			
+			body = subject.new(wrapped_body)
+			body.close
+			
+			expect(close_called).to be == true
+		end
+		
+		it "does not fail if wrapped body does not respond to close" do
+			wrapped_body = proc { |stream| stream.write("Hello") }
+			
+			body = subject.new(wrapped_body)
+			body.close
+		end
+	end
 end
