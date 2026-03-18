@@ -65,7 +65,7 @@ describe Protocol::Rack::Adapter::Rack31 do
 				let(:app) {->(env){[200, {}, fake_file]}}
 				
 				it "should not modify partial responses" do
-					expect(response.body).to be(:kind_of?, Protocol::Rack::Body::Enumerable)
+					expect(response.body).to be(:kind_of?, Protocol::HTTP::Body::Buffered)
 				end
 			end
 		end

@@ -4,6 +4,7 @@
 # Copyright, 2022-2026, by Samuel Williams.
 
 require "protocol/http/body/readable"
+require "protocol/http/body/buffered"
 require "protocol/http/body/file"
 
 module Protocol
@@ -23,9 +24,9 @@ module Protocol
 				# @parameter length [Integer] Optional content length of the response body.
 				# @returns [Enumerable] A new enumerable body instance.
 				def self.wrap(body, length = nil)
-					if body.is_a?(Array)
-						length ||= body.sum(&:bytesize)
-						return self.new(body, length)
+					if body.respond_to?(:to_ary)
+						# This avoids allocating an enumerator, which is more efficient:
+						return ::Protocol::HTTP::Body::Buffered.new(body.to_ary, length)
 					else
 						return self.new(body, length)
 					end

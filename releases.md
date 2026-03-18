@@ -1,5 +1,9 @@
 # Releases
 
+## Unreleased
+
+  - Prefer `Protocol::HTTP::Body::Buffered` where possible for enumerable bodies, mainly to avoid creating `Enumerable`s.
+
 ## v0.21.1
 
   - Fix missing `body#close` for streaming bodies.

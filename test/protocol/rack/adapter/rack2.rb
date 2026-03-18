@@ -59,7 +59,7 @@ describe Protocol::Rack::Adapter::Rack2 do
 				let(:app) {->(env){[200, {}, body]}}
 				
 				it "should not modify partial responses" do
-					expect(response.body).to be_a(Protocol::Rack::Body::Enumerable)
+					expect(response.body).to be_a(Protocol::HTTP::Body::Buffered)
 				end
 			end
 		end
@@ -78,7 +78,7 @@ describe Protocol::Rack::Adapter::Rack2 do
 				let(:app) {->(env){[200, {}, ["Hello"]]}}
 				
 				it "handles array response correctly" do
-					expect(response.body).to be_a(Protocol::Rack::Body::Enumerable)
+					expect(response.body).to be_a(Protocol::HTTP::Body::Buffered)
 				end
 			end
 		end

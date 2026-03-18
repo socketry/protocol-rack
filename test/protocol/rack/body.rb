@@ -126,6 +126,41 @@ describe Protocol::Rack::Body do
 			end
 		end
 		
+		with "array body" do
+			it "wraps array body and returns chunks via #read" do
+				result = subject.wrap(env, 200, headers, ["Hello", " ", "World"])
+				
+				expect(result).not.to be_nil
+				expect(result.read).to be == "Hello"
+				expect(result.read).to be == " "
+				expect(result.read).to be == "World"
+				expect(result.read).to be_nil
+			end
+			
+			it "wraps array body and yields chunks via #each" do
+				result = subject.wrap(env, 200, headers, ["chunk1", "chunk2"])
+				chunks = []
+				result.each{|chunk| chunks << chunk}
+				
+				expect(chunks).to be == ["chunk1", "chunk2"]
+			end
+			
+			it "wraps empty array body" do
+				result = subject.wrap(env, 200, headers, [])
+				
+				expect(result).not.to be_nil
+				expect(result).to be(:empty?)
+				expect(result.read).to be_nil
+			end
+			
+			it "uses content-length when provided" do
+				headers["content-length"] = "11"
+				result = subject.wrap(env, 200, headers, ["Hello", " World"])
+				
+				expect(result.length).to be == 11
+			end
+		end
+		
 		with "response finished callback" do
 			it "returns a body that calls the callback when closed" do
 				called = false
