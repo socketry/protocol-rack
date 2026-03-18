@@ -22,6 +22,24 @@ describe Protocol::Rack::Body::Enumerable do
 		end
 	end
 	
+	with "#read" do
+		let(:body) {subject.new(["Hello", " ", "World"], 11)}
+		
+		it "returns chunks in order" do
+			expect(body.read).to be == "Hello"
+			expect(body.read).to be == " "
+			expect(body.read).to be == "World"
+			expect(body.read).to be_nil
+		end
+		
+		it "returns nil when exhausted" do
+			body.read
+			body.read
+			body.read
+			expect(body.read).to be_nil
+		end
+	end
+	
 	with "#each" do
 		let(:bad_enumerable) do
 			Enumerator.new do |yielder|
