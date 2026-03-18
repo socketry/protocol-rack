@@ -26,7 +26,7 @@ module Protocol
 				def self.wrap(body, length = nil)
 					if body.respond_to?(:to_ary)
 						# This avoids allocating an enumerator, which is more efficient:
-						return ::Protocol::HTTP::Body::Buffered.new(body.to_ary)
+						return ::Protocol::HTTP::Body::Buffered.new(body.to_ary, length)
 					else
 						return self.new(body, length)
 					end
