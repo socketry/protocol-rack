@@ -21,6 +21,10 @@ Please see the [project documentation](https://socketry.github.io/protocol-rack/
 
 Please see the [project releases](https://socketry.github.io/protocol-rack/releases/index) for all releases.
 
+### v0.22.0
+
+  - Prefer `Protocol::HTTP::Body::Buffered` where possible for enumerable bodies, mainly to avoid creating `Enumerable`s.
+
 ### v0.21.1
 
   - Fix missing `body#close` for streaming bodies.
@@ -57,12 +61,6 @@ Please see the [project releases](https://socketry.github.io/protocol-rack/relea
 ### v0.14.0
 
   - Handling of `HEAD` requests is now more robust.
-
-### v0.13.0
-
-  - 100% test and documentation coverage.
-  - `Protocol::Rack::Input#rewind` now works when the entire input is already read.
-  - `Protocol::Rack::Adapter::Rack2` has stricter validation of the application response.
 
 ## Contributing
 
