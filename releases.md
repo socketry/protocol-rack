@@ -1,5 +1,9 @@
 # Releases
 
+## Unreleased
+
+  - Rack 2 should not use `to_ary`.
+
 ## v0.22.0
 
   - Prefer `Protocol::HTTP::Body::Buffered` where possible for enumerable bodies, mainly to avoid creating `Enumerable`s.
