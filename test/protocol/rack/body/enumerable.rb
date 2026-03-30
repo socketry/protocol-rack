@@ -5,12 +5,6 @@
 
 require "protocol/rack/body/enumerable"
 
-begin
-	require "rack"
-rescue LoadError
-	# Rack not available
-end
-
 describe Protocol::Rack::Body::Enumerable do
 	with "empty body" do
 		let(:body) {subject.new([], nil)}
@@ -110,10 +104,7 @@ describe Protocol::Rack::Body::Enumerable do
 			wrapped = subject.wrap(rack_body)
 			
 			# Read all chunks
-			chunks = []
-			while chunk = wrapped.read
-				chunks << chunk
-			end
+			wrapped.join
 			
 			# The close callback should have been called
 			expect(closed).to be == true

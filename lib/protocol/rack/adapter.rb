@@ -3,7 +3,7 @@
 # Released under the MIT License.
 # Copyright, 2022-2026, by Samuel Williams.
 
-require "rack"
+require_relative "adapter/version"
 
 module Protocol
 	module Rack
@@ -16,9 +16,6 @@ module Protocol
 		# response = adapter.call(request)
 		# ```
 		module Adapter
-			# The version of Rack being used. Can be overridden using the PROTOCOL_RACK_ADAPTER_VERSION environment variable.
-			VERSION = ENV.fetch("PROTOCOL_RACK_ADAPTER_VERSION", ::Rack.release)
-			
 			if VERSION >= "3.1"
 				require_relative "adapter/rack31"
 				IMPLEMENTATION = Rack31

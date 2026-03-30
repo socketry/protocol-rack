@@ -7,6 +7,8 @@ require "protocol/http/body/readable"
 require "protocol/http/body/buffered"
 require "protocol/http/body/file"
 
+require_relative "../adapter/version"
+
 module Protocol
 	module Rack
 		module Body
@@ -17,18 +19,30 @@ module Protocol
 				# The content-length header key.
 				CONTENT_LENGTH = "content-length".freeze
 				
-				# Wraps a Rack response body into an {Enumerable} instance.
-				# If the body is an Array, its total size is calculated automatically.
-				# 
-				# @parameter body [Object] The Rack response body that responds to `each`.
-				# @parameter length [Integer] Optional content length of the response body.
-				# @returns [Enumerable] A new enumerable body instance.
-				def self.wrap(body, length = nil)
-					if body.respond_to?(:to_ary)
-						# This avoids allocating an enumerator, which is more efficient:
-						return ::Protocol::HTTP::Body::Buffered.new(body.to_ary, length)
-					else
-						return self.new(body, length)
+				if Adapter::VERSION >= "3"
+					# Wraps a Rack response body into an {Enumerable} instance.
+					# If the body is an Array, its total size is calculated automatically.
+					# 
+					# @parameter body [Object] The Rack response body that responds to `each`.
+					# @parameter length [Integer] Optional content length of the response body.
+					# @returns [Enumerable] A new enumerable body instance.
+					def self.wrap(body, length = nil)
+						if body.respond_to?(:to_ary)
+							# This avoids allocating an enumerator, which is more efficient:
+							return ::Protocol::HTTP::Body::Buffered.new(body.to_ary, length)
+						else
+							return self.new(body, length)
+						end
+					end
+				else
+					def self.wrap(body, length = nil)
+						# Rack 2 does not specify or implement `to_ary` behaviour correctly, so the best we can do is check if it's an Array directly:
+						if body.is_a?(Array)
+							# This avoids allocating an enumerator, which is more efficient:
+							return ::Protocol::HTTP::Body::Buffered.new(body, length)
+						else
+							return self.new(body, length)
+						end
 					end
 				end
 				
