@@ -5,6 +5,12 @@
 
 require "protocol/rack/body/enumerable"
 
+begin
+	require "rack"
+rescue LoadError
+	# Rack not available
+end
+
 describe Protocol::Rack::Body::Enumerable do
 	with "empty body" do
 		let(:body) {subject.new([], nil)}
@@ -75,6 +81,42 @@ describe Protocol::Rack::Body::Enumerable do
 			expect do
 				body.call(nil)
 			end.to raise_exception(RuntimeError, message: be =~ /Bad Callable/)
+		end
+	end
+	
+	with ".wrap with Rack::BodyProxy", if: defined?(Rack::BodyProxy) do
+		it "calls close on the body proxy" do
+			closed = false
+			rack_body = Rack::BodyProxy.new(["Hello", "World"]) do
+				closed = true
+			end
+			
+			wrapped = subject.wrap(rack_body)
+			
+			# Consume the body
+			chunks = []
+			wrapped.each { |chunk| chunks << chunk }
+			
+			# The close callback should have been called
+			expect(closed).to be == true
+		end
+		
+		it "calls close even when reading the body" do
+			closed = false
+			rack_body = Rack::BodyProxy.new(["Hello", "World"]) do
+				closed = true
+			end
+			
+			wrapped = subject.wrap(rack_body)
+			
+			# Read all chunks
+			chunks = []
+			while chunk = wrapped.read
+				chunks << chunk
+			end
+			
+			# The close callback should have been called
+			expect(closed).to be == true
 		end
 	end
 end
