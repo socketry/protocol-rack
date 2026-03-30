@@ -89,7 +89,7 @@ describe Protocol::Rack::Body::Enumerable do
 			
 			# Consume the body
 			chunks = []
-			wrapped.each { |chunk| chunks << chunk }
+			wrapped.each{|chunk| chunks << chunk}
 			
 			# The close callback should have been called
 			expect(closed).to be == true
