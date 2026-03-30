@@ -1,6 +1,6 @@
 # Releases
 
-## Unreleased
+## v0.22.1
 
   - Rack 2 should not use `to_ary`.
 

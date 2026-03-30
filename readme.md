@@ -21,6 +21,10 @@ Please see the [project documentation](https://socketry.github.io/protocol-rack/
 
 Please see the [project releases](https://socketry.github.io/protocol-rack/releases/index) for all releases.
 
+### v0.22.1
+
+  - Rack 2 should not use `to_ary`.
+
 ### v0.22.0
 
   - Prefer `Protocol::HTTP::Body::Buffered` where possible for enumerable bodies, mainly to avoid creating `Enumerable`s.
@@ -57,10 +61,6 @@ Please see the [project releases](https://socketry.github.io/protocol-rack/relea
 ### v0.15.0
 
   - Use `IO::Stream::Readable` for the input body, which is a better tested and more robust interface.
-
-### v0.14.0
-
-  - Handling of `HEAD` requests is now more robust.
 
 ## Contributing
 
