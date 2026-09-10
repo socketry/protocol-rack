@@ -60,10 +60,7 @@ module Protocol
 			#
 			# @returns [Boolean] Whether the body could be rewound.
 			def rewind
-				if @body and @body.respond_to?(:rewind)
-					# If the body is not rewindable, this will fail.
-					@body.rewind
-					
+				if @body&.rewind
 					@finished = false
 					@closed = false
 					

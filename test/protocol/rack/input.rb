@@ -211,4 +211,16 @@ describe Protocol::Rack::Input do
 			expect(input).to be(:closed?)
 		end
 	end
+	
+	with "non-rewindable body" do
+		let(:body) {Protocol::HTTP::Body::Readable.new}
+		
+		it "does not report a successful rewind" do
+			expect(input.read).to be == ""
+			expect(input).to be(:closed?)
+			
+			expect(input.rewind).to be == false
+			expect(input).to be(:closed?)
+		end
+	end
 end
