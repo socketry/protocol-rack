@@ -44,6 +44,10 @@ module Protocol
 					raise ArgumentError, "App must be callable!" unless @app.respond_to?(:call)
 				end
 				
+				# Rack does not define an application lifecycle hook, so there is nothing to close.
+				def close
+				end
+				
 				# The logger to use for this adapter.
 				# 
 				# @returns [Console] The console logger.

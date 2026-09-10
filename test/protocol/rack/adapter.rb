@@ -19,6 +19,16 @@ describe Protocol::Rack::Adapter do
 		expect(subject.parse_file(rackup_path)).to be_a(Proc)
 	end
 	
+	with "#close" do
+		it "can be closed" do
+			app = ->(env){[200, {}, []]}
+			adapter = subject.new(app)
+			
+			expect(adapter).to be(:respond_to?, :close)
+			expect(adapter.close).to be_nil
+		end
+	end
+	
 	with ".make_response" do
 		let(:env) {Rack::MockRequest.env_for("/")}
 		
