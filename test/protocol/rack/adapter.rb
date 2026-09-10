@@ -19,6 +19,23 @@ describe Protocol::Rack::Adapter do
 		expect(subject.parse_file(rackup_path)).to be_a(Proc)
 	end
 	
+	with "#close" do
+		it "closes the Rack application when supported" do
+			closed = false
+			app = ->(env){[200, {}, []]}
+			app.define_singleton_method(:close) {closed = true}
+			
+			subject.new(app).close
+			expect(closed).to be == true
+		end
+		
+		it "does nothing when the Rack application has no close hook" do
+			app = ->(env){[200, {}, []]}
+			
+			expect(subject.new(app).close).to be_nil
+		end
+	end
+	
 	with ".make_response" do
 		let(:env) {Rack::MockRequest.env_for("/")}
 		
