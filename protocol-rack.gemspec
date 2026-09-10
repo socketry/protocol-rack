@@ -16,6 +16,8 @@ Gem::Specification.new do |spec|
 	spec.homepage = "https://github.com/socketry/protocol-rack"
 	
 	spec.metadata = {
+		"bug_tracker_uri" => "https://github.com/socketry/protocol-rack/issues",
+		"changelog_uri" => "https://github.com/socketry/protocol-rack/blob/main/releases.md",
 		"documentation_uri" => "https://socketry.github.io/protocol-rack/",
 		"source_code_uri" => "https://github.com/socketry/protocol-rack.git",
 	}
