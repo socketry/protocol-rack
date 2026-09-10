@@ -1,5 +1,9 @@
 # Releases
 
+## Unreleased
+
+  - Respect the result of rewinding the underlying request body.
+
 ## v0.22.1
 
   - Rack 2 should not use `to_ary`.
