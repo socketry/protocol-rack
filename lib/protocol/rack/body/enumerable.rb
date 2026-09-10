@@ -103,7 +103,9 @@ module Protocol
 				# @yields {|chunk| ...}
 				# 	@parameter chunk [String] A chunk of the response body.
 				def each(&block)
-					@body.each(&block)
+					if body = @body
+						body.each(&block)
+					end
 				rescue => error
 					raise
 				ensure
