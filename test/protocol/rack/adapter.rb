@@ -20,19 +20,13 @@ describe Protocol::Rack::Adapter do
 	end
 	
 	with "#close" do
-		it "closes the Rack application when supported" do
+		it "does not impose a lifecycle hook on the Rack application" do
 			closed = false
 			app = ->(env){[200, {}, []]}
 			app.define_singleton_method(:close) {closed = true}
 			
-			subject.new(app).close
-			expect(closed).to be == true
-		end
-		
-		it "does nothing when the Rack application has no close hook" do
-			app = ->(env){[200, {}, []]}
-			
 			expect(subject.new(app).close).to be_nil
+			expect(closed).to be == false
 		end
 	end
 	
