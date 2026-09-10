@@ -1,6 +1,6 @@
 # Releases
 
-## Unreleased
+## v0.23.0
 
   - Respect the result of rewinding the underlying request body.
   - Avoid enumerating a response body after it has been closed.

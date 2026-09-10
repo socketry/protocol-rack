@@ -21,6 +21,12 @@ Please see the [project documentation](https://socketry.github.io/protocol-rack/
 
 Please see the [project releases](https://socketry.github.io/protocol-rack/releases/index) for all releases.
 
+### v0.23.0
+
+  - Respect the result of rewinding the underlying request body.
+  - Avoid enumerating a response body after it has been closed.
+  - Add the missing `console` runtime dependency.
+
 ### v0.22.1
 
   - Rack 2 should not use `to_ary`.
@@ -57,10 +63,6 @@ Please see the [project releases](https://socketry.github.io/protocol-rack/relea
 ### v0.16.0
 
   - Hijacked IO is no longer duped, as it's not retained by the original connection, and `SSLSocket` does not support duping.
-
-### v0.15.0
-
-  - Use `IO::Stream::Readable` for the input body, which is a better tested and more robust interface.
 
 ## Contributing
 
