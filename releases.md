@@ -3,6 +3,7 @@
 ## Unreleased
 
   - Respect the result of rewinding the underlying request body.
+  - Avoid enumerating a response body after it has been closed.
 
 ## v0.22.1
 

@@ -58,6 +58,16 @@ describe Protocol::Rack::Body::Enumerable do
 				end
 			end.to raise_exception(RuntimeError, message: be =~ /Bad Enumerable/)
 		end
+		
+		it "does not enumerate after being closed" do
+			body = subject.new(["Hello World"], 11)
+			body.close
+			
+			chunks = []
+			body.each{|chunk| chunks << chunk}
+			
+			expect(chunks).to be(:empty?)
+		end
 	end
 	
 	with "#call" do
