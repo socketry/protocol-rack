@@ -73,6 +73,81 @@ describe Protocol::Rack::Adapter::Rack3 do
 				expect(response.read).to be == "Hello World!"
 			end
 		end
+		
+		with "a request body" do
+			let(:body) {Protocol::HTTP::Body::Buffered.new(["Hello", " ", "World"])}
+			let(:request) {Protocol::HTTP::Request.new("https", "example.com", "POST", "/", "http/1.1", Protocol::HTTP::Headers.new, body)}
+			
+			with "that is partially read" do
+				let(:app) do
+					->(env) do
+						@input = env["rack.input"]
+						@input.read(5)
+						
+						[400, {}, ["Rejected"]]
+					end
+				end
+				
+				it "closes the input once the response has been sent" do
+					expect(response.status).to be == 400
+					expect(@input).not.to be(:closed?)
+					
+					expect(response.read).to be == "Rejected"
+					
+					expect(@input).to be(:closed?)
+				end
+			end
+			
+			with "that is partially read and no response body" do
+				let(:app) do
+					->(env) do
+						@input = env["rack.input"]
+						@input.read(5)
+						
+						[204, {}, []]
+					end
+				end
+				
+				it "closes the input immediately" do
+					expect(response.body).to be_nil
+					expect(@input).to be(:closed?)
+				end
+			end
+			
+			with "that is partially read when the application fails" do
+				let(:app) do
+					->(env) do
+						@input = env["rack.input"]
+						@input.read(5)
+						
+						raise StandardError, "Invalid upload"
+					end
+				end
+				
+				it "closes the input" do
+					expect(response.status).to be == 500
+					expect(@input).to be(:closed?)
+				end
+			end
+			
+			with "that is not read" do
+				let(:app) do
+					->(env) do
+						@input = env["rack.input"]
+						
+						[200, {}, ["Ignored"]]
+					end
+				end
+				
+				it "leaves the input for the server" do
+					expect(response.body).to be_a(Protocol::HTTP::Body::Buffered)
+					
+					response.close
+					
+					expect(@input).not.to be(:closed?)
+				end
+			end
+		end
 	end
 	
 	with "#make_response" do

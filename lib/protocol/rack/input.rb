@@ -21,6 +21,7 @@ module Protocol
 			def initialize(body, ...)
 				@body = body
 				@closed = false
+				@reading = false
 				
 				super(...)
 			end
@@ -70,6 +71,11 @@ module Protocol
 				return false
 			end
 			
+			# Whether the application has read part of the input, but not all of it.
+			def partially_read?
+				@reading and !closed?
+			end
+			
 			# Whether the stream has been closed.
 			def closed?
 				@closed or @body.nil?
@@ -88,6 +94,8 @@ module Protocol
 			
 			def sysread(size, buffer)
 				if @body
+					@reading = true
+					
 					# User's may forget to call #close...
 					if chunk = @body.read
 						# If the user reads exactly the content length, we close the stream automatically:
