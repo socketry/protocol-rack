@@ -10,6 +10,8 @@ require_relative "../input"
 require_relative "../response"
 require_relative "../rewindable"
 
+require "protocol/http/body/completable"
+
 module Protocol
 	module Rack
 		module Adapter
@@ -177,6 +179,9 @@ module Protocol
 				def call(request)
 					env = self.make_environment(request)
 					
+					# Keep the input we created, in case the application replaces it:
+					input = env[RACK_INPUT]
+					
 					status, headers, body = @app.call(env)
 					
 					# The status must always be an integer:
@@ -191,9 +196,30 @@ module Protocol
 					
 					headers, meta = self.wrap_headers(headers)
 					
-					return Response.wrap(env, status, headers, meta, body, request)
+					response = Response.wrap(env, status, headers, meta, body, request)
+					
+					return close_partially_read_input(input, response)
 				rescue => error
+					close_partially_read_input(input)
+					
 					return self.handle_error(env, status, headers, body, error)
+				end
+				
+				# If the application read part of the request body, close the rest once the response has been sent, otherwise the server will wait for it. Input the application never read is left for the server to discard.
+				#
+				# @parameter input [Input | Nil] The input given to the application.
+				# @parameter response [Protocol::HTTP::Response | Nil] The response being sent, if any.
+				# @returns [Protocol::HTTP::Response | Nil] The response.
+				def close_partially_read_input(input, response = nil)
+					if input.is_a?(Input) and input.partially_read?
+						if response&.body
+							response.body = ::Protocol::HTTP::Body::Completable.new(response.body, proc{input.close})
+						else
+							input.close
+						end
+					end
+					
+					return response
 				end
 				
 				# Generate a suitable response for the given exception.

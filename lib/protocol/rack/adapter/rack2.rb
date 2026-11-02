@@ -87,6 +87,9 @@ module Protocol
 				def call(request)
 					env = self.make_environment(request)
 					
+					# Keep the input we created, in case the application replaces it:
+					input = env[RACK_INPUT]
+					
 					status, headers, body = @app.call(env)
 					
 					if status
@@ -110,8 +113,12 @@ module Protocol
 					# 	body = hijack_body
 					# end
 					
-					return Response.wrap(env, status, headers, meta, body, request)
+					response = Response.wrap(env, status, headers, meta, body, request)
+					
+					return close_partially_read_input(input, response)
 				rescue => error
+					close_partially_read_input(input)
+					
 					return self.handle_error(env, status, headers, body, error)
 				end
 				

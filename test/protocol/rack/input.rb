@@ -146,6 +146,31 @@ describe Protocol::Rack::Input do
 			end
 		end
 		
+		with "#partially_read?" do
+			it "is not partially read before it is read" do
+				expect(input).not.to be(:partially_read?)
+			end
+			
+			it "is partially read after reading part of it" do
+				input.read(3)
+				
+				expect(input).to be(:partially_read?)
+			end
+			
+			it "is not partially read after reading all of it" do
+				input.read
+				
+				expect(input).not.to be(:partially_read?)
+			end
+			
+			it "is not partially read once closed" do
+				input.read(3)
+				input.close
+				
+				expect(input).not.to be(:partially_read?)
+			end
+		end
+		
 		with "#rewind" do
 			it "can rewind after reading all input" do
 				expect(input.read).to be == sample_data.join
