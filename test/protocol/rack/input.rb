@@ -6,6 +6,9 @@
 
 require "protocol/rack/input"
 require "protocol/http/body/buffered"
+require "protocol/http/body/writable"
+
+require "sus/fixtures/async"
 
 describe Protocol::Rack::Input do
 	let(:input) {subject.new(body)}
@@ -143,6 +146,73 @@ describe Protocol::Rack::Input do
 		with "#closed?" do
 			it "should not be at end of file" do
 				expect(input).not.to be(:closed?)
+			end
+		end
+		
+		with "#partially_read?" do
+			it "is not partially read before it is read" do
+				expect(input).not.to be(:partially_read?)
+			end
+			
+			it "is partially read after reading part of it" do
+				input.read(3)
+				
+				expect(input).to be(:partially_read?)
+			end
+			
+			it "is not partially read after reading all of it" do
+				input.read
+				
+				expect(input).not.to be(:partially_read?)
+			end
+			
+			it "is not partially read once closed" do
+				input.read(3)
+				input.close
+				
+				expect(input).not.to be(:partially_read?)
+			end
+			
+			it "is not partially read after reading all of it and rewinding" do
+				input.read
+				input.rewind
+				
+				expect(input).not.to be(:partially_read?)
+			end
+			
+			it "is partially read after reading part of it and rewinding" do
+				input.read(3)
+				input.rewind
+				
+				expect(input).to be(:partially_read?)
+			end
+			
+			with "a read in progress" do
+				include Sus::Fixtures::Async::SchedulerContext
+				
+				let(:body) {Protocol::HTTP::Body::Writable.new}
+				
+				it "is not partially read while waiting for the first chunk" do
+					reader = Async{input.read}
+					
+					expect(input).not.to be(:partially_read?)
+					
+					body.close_write
+					reader.wait
+				end
+				
+				it "is not partially read while waiting for the next chunk" do
+					body.write("Hello")
+					expect(input.read(5)).to be == "Hello"
+					expect(input).to be(:partially_read?)
+					
+					reader = Async{input.read}
+					
+					expect(input).not.to be(:partially_read?)
+					
+					body.close_write
+					reader.wait
+				end
 			end
 		end
 		
