@@ -5,6 +5,8 @@
 
 require "protocol/rack/body/enumerable"
 
+require "sus/fixtures/async/scheduler_context"
+
 describe Protocol::Rack::Body::Enumerable do
 	with "empty body" do
 		let(:body) {subject.new([], nil)}
@@ -30,6 +32,7 @@ describe Protocol::Rack::Body::Enumerable do
 			expect(body.read).to be == " "
 			expect(body.read).to be == "World"
 			expect(body.read).to be_nil
+			expect(body.read).to be_nil
 		end
 		
 		it "returns nil when exhausted" do
@@ -37,6 +40,122 @@ describe Protocol::Rack::Body::Enumerable do
 			body.read
 			body.read
 			expect(body.read).to be_nil
+		end
+		
+		it "returns nil to the body from each yield" do
+			values = []
+			body = subject.new(Class.new{define_method(:each){|&block| values << block.call("Hello")}}.new, 5)
+			
+			expect(body.read).to be == "Hello"
+			expect(body.read).to be_nil
+			expect(values).to be == [nil]
+		end
+		
+		it "can be read from different fibers" do
+			expect(body.read).to be == "Hello"
+			expect(Fiber.new{body.read}.resume).to be == " "
+			expect(body.read).to be == "World"
+		end
+		
+		it "closes the wrapped body when closed partway through" do
+			closed = false
+			body = subject.new(Rack::BodyProxy.new(["Hello", " ", "World"]){closed = true}, 11)
+			
+			expect(body.read).to be == "Hello"
+			body.close
+			
+			expect(closed).to be == true
+		end
+		
+		with "a body that raises" do
+			let(:failing) do
+				Class.new do
+					def each
+						yield "Hello"
+						raise "Bad Enumerable"
+					end
+				end
+			end
+			
+			let(:body) {subject.new(failing.new, nil)}
+			
+			include Sus::Fixtures::Async::SchedulerContext
+			
+			it "raises the error to the reader" do
+				expect(body.read).to be == "Hello"
+				expect{body.read}.to raise_exception(RuntimeError, message: be =~ /Bad Enumerable/)
+			end
+			
+			it "enumerates the body again after the error" do
+				body.read
+				expect{body.read}.to raise_exception(RuntimeError)
+				
+				expect(body.read).to be == "Hello"
+			end
+		end
+		
+		with "a body that raises StopIteration" do
+			let(:stopping) do
+				Class.new do
+					def each
+						yield "Hello"
+						raise StopIteration
+					end
+				end
+			end
+			
+			let(:body) {subject.new(stopping.new, nil)}
+			
+			it "treats it as the end of the body" do
+				expect(body.read).to be == "Hello"
+				expect(body.read).to be_nil
+				
+				expect(body.read).to be == "Hello"
+			end
+		end
+		
+		with "a body that raises an exception that is not a StandardError" do
+			let(:failing) do
+				Class.new do
+					def each
+						yield "Hello"
+						raise Interrupt
+					end
+				end
+			end
+			
+			let(:body) {subject.new(failing.new, nil)}
+			
+			include Sus::Fixtures::Async::SchedulerContext
+			
+			it "raises the exception to the reader" do
+				expect(body.read).to be == "Hello"
+				expect{body.read}.to raise_exception(Interrupt)
+			end
+		end
+		
+		with "a body that yields from a nested fiber" do
+			let(:nested) do
+				Class.new do
+					def each(&block)
+						Fiber.new do
+							block.call("Hello")
+							block.call(" ")
+						end.resume
+						
+						block.call("World")
+					end
+				end
+			end
+			
+			let(:body) {subject.new(nested.new, 11)}
+			
+			it "returns every chunk" do
+				expect(body.read).to be == "Hello"
+				expect(body.read).to be == " "
+				expect(body.read).to be == "World"
+				expect(body.read).to be_nil
+			end
 		end
 	end
 	

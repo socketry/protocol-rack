@@ -1,5 +1,9 @@
 # Releases
 
+## Unreleased
+
+  - Return chunks yielded from nested fibers when reading enumerable response bodies.
+
 ## v0.23.0
 
   - Respect the result of rewinding the underlying request body.
