@@ -133,13 +133,33 @@ module Protocol
 				# Read the next chunk from the response body.
 				# Returns nil when there are no more chunks.
 				# 
+				# The body is enumerated in a fiber of its own, and each chunk is transferred back to the reader. Unlike `Enumerator#next`, which relies on `Fiber.yield`, this also returns chunks the body yields from inside a fiber it created.
+				# 
 				# @returns [String | Nil] The next chunk or nil if there are no more chunks.
 				def read
-					@chunks ||= @body.to_enum(:each)
+					return nil if @chunks == false
 					
-					return @chunks.next
-				rescue StopIteration
-					return nil
+					@chunks ||= Fiber.new do |reader|
+						@body.each do |chunk|
+							@chunks = Fiber.current
+							reader = reader.transfer(chunk)
+							nil
+						end
+					rescue Exception => error
+						# Raised in the reader below.
+					ensure
+						# After an error, the next read enumerates the body again.
+						@chunks = error ? nil : false
+						reader.transfer(error)
+					end
+					
+					result = @chunks.transfer(Fiber.current)
+					
+					# As with `Enumerator#next`, a `StopIteration` raised by the body ends this read.
+					return nil if result.is_a?(StopIteration)
+					raise result if result.is_a?(Exception)
+					
+					return result
 				end
 				
 				# Get a string representation of the body.
