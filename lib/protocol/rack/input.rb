@@ -21,6 +21,8 @@ module Protocol
 			def initialize(body, ...)
 				@body = body
 				@closed = false
+				@reading = false
+				@partial = false
 				
 				super(...)
 			end
@@ -61,6 +63,9 @@ module Protocol
 			# @returns [Boolean] Whether the body could be rewound.
 			def rewind
 				if @body&.rewind
+					# If the body was read to the end, there is nothing left to release:
+					@partial = false if @closed
+					
 					@finished = false
 					@closed = false
 					
@@ -68,6 +73,11 @@ module Protocol
 				end
 				
 				return false
+			end
+			
+			# Whether the application has read part of the input, but not all of it, and is not currently reading it.
+			def partially_read?
+				@partial and !@reading and !closed?
 			end
 			
 			# Whether the stream has been closed.
@@ -88,8 +98,19 @@ module Protocol
 			
 			def sysread(size, buffer)
 				if @body
+					# The read may block, and the application may still be waiting for it when the response has been sent:
+					@reading = true
+					
+					begin
+						chunk = @body.read
+					ensure
+						@reading = false
+					end
+					
 					# User's may forget to call #close...
-					if chunk = @body.read
+					if chunk
+						@partial = true
+						
 						# If the user reads exactly the content length, we close the stream automatically:
 						# https://github.com/socketry/async-http/issues/183
 						if @body.empty?

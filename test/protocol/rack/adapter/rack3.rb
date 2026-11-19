@@ -3,8 +3,10 @@
 # Released under the MIT License.
 # Copyright, 2022-2026, by Samuel Williams.
 
+require "sus/fixtures/async"
 require "sus/fixtures/console"
 
+require "protocol/http/body/writable"
 require "protocol/http/request"
 require "protocol/rack/adapter/rack3"
 
@@ -71,6 +73,159 @@ describe Protocol::Rack::Adapter::Rack3 do
 				
 				expect(response).to be(:success?)
 				expect(response.read).to be == "Hello World!"
+			end
+		end
+		
+		with "a request body" do
+			let(:body) {Protocol::HTTP::Body::Buffered.new(["Hello", " ", "World"])}
+			let(:request) {Protocol::HTTP::Request.new("https", "example.com", "POST", "/", "http/1.1", Protocol::HTTP::Headers.new, body)}
+			
+			with "that is partially read" do
+				let(:app) do
+					->(env) do
+						@input = env["rack.input"]
+						@input.read(5)
+						
+						[400, {}, ["Rejected"]]
+					end
+				end
+				
+				it "closes the input once the response has been sent" do
+					expect(response.status).to be == 400
+					expect(@input).not.to be(:closed?)
+					
+					expect(response.read).to be == "Rejected"
+					
+					expect(@input).to be(:closed?)
+				end
+			end
+			
+			with "that is partially read and no response body" do
+				let(:app) do
+					->(env) do
+						@input = env["rack.input"]
+						@input.read(5)
+						
+						[204, {}, []]
+					end
+				end
+				
+				it "closes the input immediately" do
+					expect(response.body).to be_nil
+					expect(@input).to be(:closed?)
+				end
+			end
+			
+			with "that is partially read when the application fails" do
+				let(:app) do
+					->(env) do
+						@input = env["rack.input"]
+						@input.read(5)
+						
+						raise StandardError, "Invalid upload"
+					end
+				end
+				
+				it "closes the input" do
+					expect(response.status).to be == 500
+					expect(@input).to be(:closed?)
+				end
+			end
+			
+			with "that is not read" do
+				let(:app) do
+					->(env) do
+						@input = env["rack.input"]
+						
+						[200, {}, ["Ignored"]]
+					end
+				end
+				
+				it "leaves the input for the server" do
+					expect(response.body).to be_a(Protocol::HTTP::Body::Buffered)
+					
+					response.close
+					
+					expect(@input).not.to be(:closed?)
+				end
+			end
+			
+			with "that is still being read" do
+				include Sus::Fixtures::Async::SchedulerContext
+				
+				let(:body) {Protocol::HTTP::Body::Writable.new}
+				
+				with "in the background" do
+					let(:app) do
+						->(env) do
+							@input = env["rack.input"]
+							@reader = Async{@input.read}
+							
+							[200, {}, ["ok"]]
+						end
+					end
+					
+					it "leaves the input for the reader" do
+						expect(response.read).to be == "ok"
+						expect(@input).not.to be(:closed?)
+						
+						body.write("Hello")
+						body.write(" World")
+						body.close_write
+						
+						expect(@reader.wait).to be == "Hello World"
+					end
+				end
+				
+				with "in the background after reading part of it" do
+					let(:app) do
+						->(env) do
+							@input = env["rack.input"]
+							@input.read(5)
+							@reader = Async{@input.read}
+							
+							[200, {}, ["ok"]]
+						end
+					end
+					
+					it "leaves the input for the reader" do
+						body.write("Hello")
+						
+						expect(response.read).to be == "ok"
+						expect(@input).not.to be(:closed?)
+						
+						body.write(" World")
+						body.close_write
+						
+						expect(@reader.wait).to be == " World"
+					end
+				end
+				
+				with "when the response has been sent" do
+					let(:app) do
+						->(env) do
+							@input = env["rack.input"]
+							@input.read(5)
+							
+							[200, {}, ["ok"]]
+						end
+					end
+					
+					it "leaves the input for the reader" do
+						body.write("Hello")
+						
+						expect(response.status).to be == 200
+						reader = Async{@input.read}
+						
+						expect(response.read).to be == "ok"
+						expect(@input).not.to be(:closed?)
+						
+						body.write(" World")
+						body.close_write
+						
+						expect(reader.wait).to be == " World"
+					end
+				end
 			end
 		end
 	end
